@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<body onload="onLoad();">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+    
+* {
+  box-sizing: border-box;
+}
+
+/* Create two equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 50%;
+  height: 50%;
+  padding: 1%;    
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+textarea { 
+  width: 100%;   
+  resize: vertical;
+  min-height: 200px;
+  height:100%;
+  }
+
+</style>
+
+<h1>Converte memorial para formato SIGAREAS</h1>
+
+<div class="row">
+ <div class="column" style="background-color:#aaa;">
+  <form>
+    Arquivo de Entrada
+<textarea id="infile" rows=25></textarea>
+    <br><br>
+    <input type="button" value="Converter" onclick="convert();" /><input type="submit" value="Upload">
+  </form>
+ </div>
+ <div class="column" style="background-color:#aaa;">
+  <form>
+    Formato SIGAREAS&#8594;Administrador
+<textarea id="outfile" rows=25></textarea>
+    <br><br>
+    <input type="submit" value="Download">
+  </form>
+ </div>
+</div>
+<br>
+<br>
+<p></p>
+</body>
+<script src="{{ url_for('static',filename='main.js') }}"></script>
+</html>
+
+
