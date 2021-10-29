@@ -62,4 +62,33 @@ function convert() {
     });
   }
 
-  
+const fileUploader = document.getElementById('file-uploader');
+
+fileUploader.addEventListener('change', (event) => {
+  const files = event.target.files;
+  const file = files[0];
+  console.log('files', files);
+
+  let reader = new FileReader();
+
+  reader.readAsText(file);
+
+  reader.onload = function() {
+    intext.value = reader.result
+    console.log(reader.result);
+  };
+
+});
+
+
+function download(text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', 'SIGAREAS.txt');
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+  document.body.removeChild(element);
+}

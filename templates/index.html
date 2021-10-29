@@ -25,36 +25,76 @@
 
 textarea { 
   width: 100%;   
-  resize: vertical;
+  resize: none;
   min-height: 200px;
+  max-height: 600px;
   height:100%;
-  }
+}
+
+body {
+  background: #3985B1;
+  color: #FFFFFF;
+}
+
+.form-style-9{	
+	background: #FAFAFA;
+	margin: 50px auto;
+	box-shadow: 1px 1px 25px rgba(0, 0, 0, 0.35);
+	border-radius: 10px;
+	border: 6px solid #305A72;
+}
+
+.form-style-9 ul li  .field-style:focus{
+	box-shadow: 0 0 5px #B0CFE0;
+	border:1px solid #B0CFE0;
+}
+
+.form-style-9 ul li input[type="button"], 
+.form-style-9 ul li input[type="submit"] {
+	-moz-box-shadow: inset 0px 1px 0px 0px #3985B1;
+	-webkit-box-shadow: inset 0px 1px 0px 0px #3985B1;
+	box-shadow: inset 0px 1px 0px 0px #3985B1;
+	background-color: #216288;
+	border: 1px solid #17445E;
+	display: inline-block;
+	cursor: pointer;
+	color: #FFFFFF;
+	padding: 8px 18px;
+	text-decoration: none;
+	font: 12px Arial, Helvetica, sans-serif;
+}
+.form-style-9 ul li input[type="button"]:hover, 
+.form-style-9 ul li input[type="submit"]:hover {
+	background: linear-gradient(to bottom, #2D77A2 5%, #337DA8 100%);
+	background-color: #28739E;
+}
 
 </style>
-
-<h1>Converte memorial para formato SIGAREAS</h1>
-
+<div class="form-style-9">
+<h1 style="color: rgb(29, 29, 29); padding: 8px 18px;">Converte memorial para formato SIGAREAS</h1>
 <div class="row">
- <div class="column" style="background-color:#aaa;">
+ <div class="column">
   <form>
-    Arquivo de Entrada
+    <label style="color: rgb(29, 29, 29); padding: 8px 18px;font-size: large;">Arquivo de Entrada</label> 
 <textarea id="infile" rows=25></textarea>
     <br><br>
-    <input type="button" value="Converter" onclick="convert();" /><input type="submit" value="Upload" style="background-color:#aaa;">
+    <input type="button" value="Converter" onclick="convert();" />
+    <input type="file" value="Upload" id="file-uploader" style="background-color:#aaa;">
   </form>
  </div>
- <div class="column" style="background-color:#aaa;">
-  <form>
-    Formato SIGAREAS&#8594;Administrador
-<textarea id="outfile" rows=25></textarea>
+ <div class="column">
+  <form onsubmit="download(this['outext'].value)">
+    <label style="color: rgb(29, 29, 29); padding: 8px 18px;font-size: large;">Formato SIGAREAS&#8594;Administrador</label>
+<textarea id="outfile" name='outext', rows=25></textarea>
     <br><br>
-    <input type="submit" value="Download" style="background-color:#aaa;">
+    <input type="submit" value="Download">
   </form>
  </div>
-</div>
 <br>
 <br>
 <p></p>
+</div>
+</div>
 </body>
 <script src="{{ url_for('static',filename='main.js') }}"></script>
 </html>
