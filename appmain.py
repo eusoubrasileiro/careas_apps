@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, jsonify
 import sys
+from poligonal.util import memorialRead, formatMemorial
 
-app = Flask("myflaskapp")
+app = Flask('careas-tools')
 
 @app.route('/convert', methods=['GET', 'POST'])
 def convert():
@@ -9,8 +10,14 @@ def convert():
         #print(request.json.encode('ascii', 'ignore'), file=sys.stdout, flush=True)
         #print(type(request.json), file=sys.stdout, flush=True)
         # Serialize the result, you can add additional fields
-        outtext = request.json
-        return jsonify(text=outtext, result='sucess')
+        outtext = u"Insira o arquivo texto de entrada à esquerda"
+        try: 
+            intext = memorialRead(request.json)
+            outtext = formatMemorial(intext)
+        except Exception as excp: 
+            return jsonify(text=str(Exception), result='failed') 
+        else:    
+            return jsonify(text=outtext, result='success')
     return None
 
 @app.route('/')
