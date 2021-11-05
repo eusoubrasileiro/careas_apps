@@ -7,20 +7,19 @@ from bokeh.plotting import figure
 from bokeh.embed import json_item
 from bokeh.models import Arrow, NormalHead
 
-
 app = Flask('careas-tools')
 
 @app.route('/convert', methods=['GET', 'POST'])
 def convert():
     if request.method == 'POST':
-        #print(request.json.encode('ascii', 'ignore'), file=sys.stdout, flush=True)
-        #print(type(request.json), file=sys.stdout, flush=True)
+        #print(request.get_json(), file=sys.stdout, flush=True)
         # Serialize the result, you can add additional fields
         outputfile = u"Insira o arquivo texto de entrada à esquerda"
-        try: 
-            inputfile = memorialRead(request.json)
+        try:         
+            data = request.get_json()            
+            inputfile = memorialRead(data['text'], fmt=data['fmt'])
             # for plotting memorial 
-            coordinates = memorialRead(request.json, decimal=True)
+            coordinates = memorialRead(data['text'], fmt=data['fmt'], decimal=True)
             json_plot = bokeh_memorial_draw(coordinates)
             # output file formatted
             outputfile = formatMemorial(inputfile)
@@ -58,24 +57,26 @@ def bokeh_memorial_draw(coordinates):
 
 
 # not needed for now
-PageState = {} # state dictionary for the page
+# PageState = {} # state dictionary for the page
 
-@app.route('/state', methods=['GET', 'POST'])
-def state():
-    # if request.method == 'POST':
-    #     return jsonify(text=str(Exception.__name__), result='failed')
-    # else:
-    #     return jsonify(text=outputfile, result='success', json_item=json_plot) 
-    return None
+# @app.route('/state', methods=['GET', 'POST'])
+# def state():
+#     # if request.method == 'POST':
+#     #     return jsonify(text=str(Exception.__name__), result='failed')
+#     # else:
+#     #     return jsonify(text=outputfile, result='success', json_item=json_plot) 
+#     return None
 
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-if __name__ == "__main__":
-    app.run()
+def get_app():
+    return app
 
-# export FLASK_APP=appmain
-# run in development
-# export FLASK_ENV=development
+if __name__ == "__main__":
+    app = get_app()
+    app.run(host='0.0.0.0')
+
+

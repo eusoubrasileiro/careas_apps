@@ -41,15 +41,16 @@ function onRefresh(){
 }
 
 function ConvertnDraw() {
-  // true == gtmpro or false == auto
-  //var inputfmt = !document.getElementById('fmtgtmpro').checked; 
-
+  // true == gtmpro or false == auto  
+  var inputfmt =  (document.getElementById("radiofmt_gtmpro").checked) ? 'gtmpro' : 'auto' ;
+  
   fetch("/convert", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
-    },
-    body: JSON.stringify(inputtext.value)
+    },    
+    body: JSON.stringify({text : inputtext.value, fmt: inputfmt}),
+    dataType: "json"
   })
   .then(resp => {
       if (resp.ok)

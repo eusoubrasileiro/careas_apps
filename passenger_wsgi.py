@@ -1,1 +1,0 @@
-from appmain import app as application
