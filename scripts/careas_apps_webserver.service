@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve careas_apps website
+After=network.target
+
+[Service]
+User=andre
+Group=www-data
+WorkingDirectory=/home/andre/careas_apps
+Environment="PATH=/home/andre/careas_apps/pythonvenv/bin"
+ExecStart=/home/andre/careas_apps/scripts/careas_apps_webserver.sh
+
+[Install]
+WantedBy=multi-user.target

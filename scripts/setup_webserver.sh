@@ -41,20 +41,13 @@ sudo touch /etc/authbind/byport/443
 sudo chmod 500 /etc/authbind/byport/443
 sudo chown andre /etc/authbind/byport/443
 
-authbind  gunicorn -w 8 --certfile certs/fullchain.pem --keyfile certs/privkey.pem --bind 0.0.0.0:443  wsgi:app 
-
-# service
-# sudo chmod 744 ~/motion_server_nvr/run_motion_nvr.sh
-# sudo cp ~/motion_server_nvr/pc_config/motion_nvr.service /etc/systemd/system/
-# sudo chmod 664 /etc/systemd/system/motion_nvr.service
-# sudo systemctl daemon-reload
-# sudo systemctl enable motion_nvr
-# sudo systemctl start motion_nvr
-
-
-# sudo ufw allow 5000 defaults to this port
-# run in production
-# gunicorn --bind 0.0.0.0:5000 wsgi:app
+# service still runs on my current user
+sudo chmod 744 ~/scrips/careas_apps_webserver.sh
+sudo cp ~/scrips/careas_apps_webserver.service /etc/systemd/system/
+sudo chmod 664 /etc/systemd/system/careas_apps_webserver.service
+sudo systemctl daemon-reload
+sudo systemctl enable careas_apps_webserver
+sudo systemctl start careas_apps_webserver
 
 # namecheap dynamic dns
 # https://www.namecheap.com/support/knowledgebase/article.aspx/5/11/are-there-any-alternate-dynamic-dns-clients/
