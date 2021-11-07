@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import sys
 from poligonal.util import memorialRead, formatMemorial
 import json 
+import traceback
 
 from bokeh.plotting import figure
 from bokeh.embed import json_item
@@ -22,9 +23,11 @@ def convert():
             coordinates = memorialRead(data['text'], fmt=data['fmt'], decimal=True)
             json_plot = bokeh_memorial_draw(coordinates)
             # output file formatted
-            outputfile = formatMemorial(inputfile)
+            outputfile = formatMemorial(inputfile)           
         except Exception as excp: 
-            return jsonify(text=str(Exception.__name__), result='failed')
+            print(traceback.format_exc(), file=sys.stderr, flush=True)
+            trace_back_string =  traceback.format_exc()    
+            return jsonify(text=trace_back_string, result='failed')
         else:    
             return jsonify(text=outputfile, result='success', json_item=json_plot) 
     return None
@@ -45,7 +48,8 @@ def bokeh_memorial_draw(coordinates):
         tools='box_zoom,pan,save,hover,reset,tap,wheel_zoom')
     # draw all coordinates as circles 
     p.circle(x, y, fill_color="gray", size=8, alpha=0.8)
-    #p.line(x, y, line_width=1)    
+    size = int(len(x)
+
     # add both a line and circles on the same plot
     x0, y0 = x[0], y[0]
     for x, y in zip(x[1:], y[1:]):
