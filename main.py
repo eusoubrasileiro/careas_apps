@@ -47,8 +47,7 @@ def bokeh_memorial_draw(coordinates):
     p = figure(width=300, height=300, toolbar_location="below",  tooltips=TOOLTIPS,
         tools='box_zoom,pan,save,hover,reset,tap,wheel_zoom')
     # draw all coordinates as circles 
-    p.circle(x, y, fill_color="gray", size=8, alpha=0.8)
-    size = int(len(x)
+    p.circle(x, y, fill_color="gray", size=8, alpha=0.8)    
 
     # add both a line and circles on the same plot
     x0, y0 = x[0], y[0]
