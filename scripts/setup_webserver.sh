@@ -21,8 +21,8 @@ sudo ln -s /snap/bin/certbot /usr/bin/certbot
 # create a standalone certificate port 80 must be open and domain server must pointing to this machine 
 sudo certbot certonly -d careas.iambr.xyz -n --standalone  --agree-tos --email eusoubrasileiro@gmail.com
 # create folder to store certificates created
-if [ ! -d "certs" ]; then # only if not created yet
-   mkdir certs 
+if [ ! -d "~/careas_apps/certs" ]; then # only if not created yet
+   mkdir "~/careas_apps/certs" 
 fi
 sudo cp /etc/letsencrypt/live/careas.iambr.xyz/fullchain.pem certs/
 sudo cp /etc/letsencrypt/live/careas.iambr.xyz/privkey.pem certs/
@@ -44,15 +44,12 @@ sudo chown andre /etc/authbind/byport/443
 authbind  gunicorn -w 8 --certfile certs/fullchain.pem --keyfile certs/privkey.pem --bind 0.0.0.0:443  wsgi:app 
 
 # service
-sudo chmod 744 ~/motion_server_nvr/run_motion_nvr.sh
-sudo cp ~/motion_server_nvr/pc_config/motion_nvr.service /etc/systemd/system/
-sudo chmod 664 /etc/systemd/system/motion_nvr.service
-sudo systemctl daemon-reload
-sudo systemctl enable motion_nvr
-sudo systemctl start motion_nvr
-
-
-
+# sudo chmod 744 ~/motion_server_nvr/run_motion_nvr.sh
+# sudo cp ~/motion_server_nvr/pc_config/motion_nvr.service /etc/systemd/system/
+# sudo chmod 664 /etc/systemd/system/motion_nvr.service
+# sudo systemctl daemon-reload
+# sudo systemctl enable motion_nvr
+# sudo systemctl start motion_nvr
 
 
 # sudo ufw allow 5000 defaults to this port
