@@ -2,20 +2,20 @@
 sudo apt-get install python3-venv snapd authbind -y
 
 cd ~/careas_apps
-if [ ! -d "pythonvenv" ]; then 
+if [ ! -d ~/careas_apps/pythonvenv ]; then 
     python3 -m venv pythonvenv
 fi 
 source pythonvenv/bin/activate
 pip install -r requeriments.txt
 
-if [ ! -d "aidbag" ]; then 
+if [ ! -d ~/careas_apps/aidbag ]; then 
     git clone https://github.com/eusoubrasileiro/aidbag.git
 fi 
 cd aidbag/anm/careas-pip/
 python setup.py install
 cd ../../../
 
-if [ ! -d "~/careas_apps/certs" ]; then # only if not created yet
+if [ ! -d ~/careas_apps/certs ]; then # only if not created yet
    # create folder to store certificates created
    mkdir "~/careas_apps/certs" 
    # to install certbot 
