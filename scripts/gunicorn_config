@@ -1,4 +1,5 @@
 # Sample Gunicorn configuration file.
+# it's auto loaded if its name is gunicorn.conf.py
 
 # certbot files tsl certification
 keyfile = "certs/privkey.pem"
