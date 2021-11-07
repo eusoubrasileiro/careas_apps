@@ -44,8 +44,8 @@ sudo chmod 500 /etc/authbind/byport/443
 sudo chown andre /etc/authbind/byport/443
 
 # service still runs on my current user
-sudo chmod 744 ~/scrips/careas_apps_webserver.sh
-sudo cp ~/scrips/careas_apps_webserver.service /etc/systemd/system/
+sudo chmod 744 ~/scripts/careas_apps_webserver.sh
+sudo cp ~/scripts/careas_apps_webserver.service /etc/systemd/system/
 sudo chmod 664 /etc/systemd/system/careas_apps_webserver.service
 sudo systemctl daemon-reload
 sudo systemctl enable careas_apps_webserver
