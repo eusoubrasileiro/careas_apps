@@ -1,5 +1,5 @@
 Flask>1.0.0
-Flask-Cache
+Flask-Caching
 Pillow>=8.3.2
 Bokeh>=2.4.0
 Gunicorn
