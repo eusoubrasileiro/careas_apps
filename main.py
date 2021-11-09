@@ -64,6 +64,9 @@ xxxx -19°44'16''507 -44°17'45''410
     cache.set('scripts', '')
     cache.set('div', '')   
     cache.set('redirect', False) 
+    cache.set('input_radio_fmts', 
+        {'auto': 'checked', 
+        'gtmpro': ''})
 
 
 @app.route('/')
@@ -91,7 +94,10 @@ def downloadFile ():
 @app.route('/convert', methods=['POST'])
 def convert():
     if request.method == 'POST':
-        cache.set('input_file', request.form['input_text'])        
+        cache.set('input_file', request.form['input_text'])     
+        input_radio_fmts = { key : '' for key in cache.get('input_radio_fmts') } # clean checked state all buttons
+        input_radio_fmts[ request.form['input_format'] ] = 'checked'
+        cache.set('input_radio_fmts', input_radio_fmts) # update radio buttons format state
         cache.set('input_format', request.form['input_format']) 
         cache.set('redirect', True)   
          # avoid form resubmission with F5        
@@ -115,9 +121,13 @@ def Convertn_Draw():
     except Exception: 
         print(traceback.format_exc(), file=sys.stderr, flush=True)
         trace_back_string =  traceback.format_exc()    
-        cache.set('converted_file', trace_back_string)
-    return render_template('index.html', input_text_file=cache.get('input_file'), output_text_file=cache.get('converted_file'),
-            bokeh_head_plot=cache.get('scripts'), bokeh_body_plot=cache.get('div'))  
+        cache.set('converted_file', trace_back_string)        
+    return render_template('index.html', 
+        input_text_file=cache.get('input_file'), 
+        output_text_file=cache.get('converted_file'),
+        bokeh_head_plot=cache.get('scripts'), 
+        bokeh_body_plot=cache.get('div'), 
+        input_radio_fmts=cache.get('input_radio_fmts'))  
 
 
 def bokeh_memorial_draw(coordinates):
@@ -146,6 +156,6 @@ def bokeh_memorial_draw(coordinates):
 
 if __name__ == "__main__":
     app = get_app()
-    app.run(host='0.0.0.0') # ,debug=True)
+    app.run(host='0.0.0.0')#,debug=True)
 
 
