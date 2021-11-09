@@ -1,150 +1,34 @@
-<!DOCTYPE html>
-<html>
-<body onload="onRefresh();">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-    
-#header {
-  width: 100%;    
-  height: 55px;
-}
-
-#container {
-  width: 90%;
-  display: flex; /* solution to all problems and also easier css 3 */
-  flex-direction: row; /* row direction */  
-  margin: auto;
-  justify-content: center;
-  align-items: center;
-  /*background-color: #ffcc33; */
-  border-radius: 10px;    
-}
-
-#first {
-  width: 35%;
-  height: 100%;    
-  flex-direction: inherit;
-  /* background-color: #3985B1; /*helps to understand containers */   
-  margin-bottom: 10px;
-  margin-top: 10px;
-}
-
-#second {
-  width: 35%;
-  height: 100%;  
-  flex-direction: inherit;
-  /* background-color: #3985B1; /*helps to understand containers */   
-  margin-bottom: 10px;
-  margin-top: 10px;
-}
-
-#third {    
-  width: 20%;    
-  align-items: center;
-  height: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  /*background-color: #red; helps to understand containers */   
-  margin-bottom: 10px;
-  margin-top: 10px;
-}
-
-#clear {
-    clear: both;
-}
-
-textarea { 
-  width: 90%;   
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  resize: none;
-  min-height: 200px;
-  max-height: 600px;
-  height:100%;  
-  border-radius: 10px;
-}
-
-body {
-  color: #3985B1;
-  background: #FFFFFF;
-}
-
-.form-style-9{	
-	background: #FAFAFA;
-	margin: 50px auto;
-	box-shadow: 1px 1px 25px rgba(0, 0, 0, 0.35);
-	border-radius: 10px;
-	border: 6px solid #305A72;
-  font-family: 'Segoe UI', Tahoma;  
-}
-
-textarea,input,#file-uploader,input {
-  font: 14px 'Segoe UI', Tahoma;
-  color: rgb(29, 29, 29);
-}
-
-.form-style-9 ul li  .field-style:focus{
-	box-shadow: 0 0 5px #B0CFE0;
-	border:1px solid #B0CFE0;
-}
-
-.form-style-9 ul li input {
-	-moz-box-shadow: inset 0px 1px 0px 0px #3985B1;
-	-webkit-box-shadow: inset 0px 1px 0px 0px #3985B1;
-	box-shadow: inset 0px 1px 0px 0px #3985B1;
-	background-color: #216288;
-	border: 1px solid #17445E;
-	display: inline-block;
-	cursor: pointer;
-	color: #FFFFFF;
-	padding: 8px 18px;
-	text-decoration: none;	
-}
-
-.form-style-9 input[type="button"]:hover, 
-.form-style-9 input[type="file"]:hover,
-.form-style-9 input[type="submit"]:hover, #file-uploader {
-	background: linear-gradient(to bottom, #2D77A2 5%, #337DA8 100%);
-	background-color: #28739E;
-}
-
-label {
-  color: rgb(29, 29, 29);
-} 
-
-</style>
+{%extends 'base.html' %}
+{%block body %}
 <div class="form-style-9">
   <div id="header">
     <h2 style="color: rgb(29, 29, 29); padding: 8px 18px; font-size: 28px;margin: 0px;">Converte memorial para formato SIGAREAS</h2>
   </div>
   <div id="container">
     <div id="first">           
-        <form>
-          <h4 style="color: rgb(29, 29, 29); padding: 8px 18px;font-size: large;margin: 0px;">Arquivo de Entrada</h4>   
-            <input type="radio" id="radiofmt_auto" name="fmt" checked="true"><label for="radiofmt_auto">auto</label><input type="radio" id="radiofmt_gtmpro" name="fmt"><label for="radiofmt_gtmpro">gtmpro</label>
-          <textarea id="infile" rows=20></textarea>
-          <input type="button" value="Converter" onclick="ConvertnDraw();" />               
+        <form method="post">
+          <h4 style="color: rgb(29, 29, 29); padding: 8px 18px;font-size: large;margin: 0px;">Arquivo de Entrada</h4>  
+          <p>
+            <input type="radio" name="input_format" value="auto" checked="true">auto</input><br>
+            <input type="radio" name="input_format" value="gtmpro">gtmpro</input><br>
+          </p> 
+          <textarea id="infile" name="input_text" rows=20>{{ input_text_file }}</textarea>
+          <input class="button" type="submit" formaction="/convert"/>               
           <input type="file" value="Upload" id="file-uploader">
         </form>
     </div>
     <div id="second">
-      <form onsubmit="download(this['outext'].value)">
+      <form method="post">
         <h4 style="color: rgb(29, 29, 29); padding: 8px 18px;font-size: large;margin: 0px;">Formato SIGAREAS</h4>
-        <textarea id="outfile" name='outext', rows=20></textarea>
-        <input type="submit" value="Download">
+        <textarea id="outfile" name='out_text', rows=20 readonly>{{ output_text_file }}</textarea>
+        <input type="submit" value="Download" formaction="/download">
       </form>
     </div>    
     <div id="third">
-      <div id="bokeh_plot"></div> 
+      {{ bokeh_body_plot }} 
     </div>
     <div id="clear"></div>    
   </div>   
 </div>
-<script src="/static/main.js"></script>
-<script src="/static/bokeh-2.4.1.min.js"></script>
-<script src="/static/jquery.min.js"></script>
-</body>
-</html>
-
+{% endblock %}
 
