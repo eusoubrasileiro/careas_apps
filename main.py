@@ -25,8 +25,9 @@ from bokeh.models import Arrow, NormalHead
 app = Flask('careas-tools')
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 # Flask-Cache package
-app.config['CACHE_TYPE'] = 'SimpleCache' # a simple Python dictonary 
-app.config['SESSION_PERMANENT'] = False
+app.config['CACHE_DIR'] = 'cache'
+app.config['CACHE_TYPE'] = 'FileSystemCache' # SimpleCache fails on multiple works gunicorn
+app.config['CACHE_THRESHOLD'] = 10000
 
 cache = Cache(app)
 
