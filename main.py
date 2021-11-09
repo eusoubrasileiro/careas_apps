@@ -27,7 +27,7 @@ app.config['SECRET_KEY'] = secrets.token_hex(16)
 # Flask-Cache package
 app.config['CACHE_TYPE'] = 'SimpleCache' # a simple Python dictonary 
 app.config['SESSION_PERMANENT'] = False
-app.config['CACHE_DEFAULT_TIMEOUT'] = 12*60*60 # 12 hours cache  
+
 cache = Cache(app)
 
 def get_app():
@@ -35,7 +35,9 @@ def get_app():
 
 @app.after_request
 def add_header(response):
-    response.cache_control.max_age = 60*60*12 # 12 hours cache 
+    # force Chrome or other Browsers to request new page resources after 5 minutes 
+    # kinda default, avoids outdated page 
+    response.cache_control.max_age = 300 
     return response
 
 #### Javascript localSession more or less equivalent  
@@ -43,7 +45,7 @@ def add_header(response):
 #### since Flask.session is a client side cache with cookies
 #### very limitted since creating heavy/huge Cookies (back-forth communication) is not recommended 
 
-def default_values():
+def load_default_values():
     cache.set('converted_file', "Carregue seu arquivo de entrada")
     cache.set('input_file', """-19°44'18''174 -44°17'41''703||
 -19;44;;18''174 -44°17'45''410
@@ -68,13 +70,18 @@ xxxx -19°44'16''507 -44°17'45''410
         {'auto': 'checked', 
         'gtmpro': ''})
 
+def isLoaded():
+    """to check if page is already loaded (n cached)  
+    Used to avoid requests->route made even if page is not loaded
+    only on Browser Cache"""
+    return cache.get('div') != None
 
 @app.route('/')
 def index():    
     # if empty cache means first time loaded the page
-    if (not cache.get('div')) or (not cache.get('redirect')) : # empty cache not a redirect       
+    if (not isLoaded()) or (not cache.get('redirect')): # empty cache not a redirect       
         #print("The cache['div'] is: ", cache.get('div'), file=sys.stderr, flush=True)
-        default_values() # initiate the current state of the Page                
+        load_default_values() # initiate the current state of the Page                
         # when the tab, browser is closed the cache is deleted 
     cache.set('redirect', False)    
     return Convertn_Draw()
@@ -82,18 +89,19 @@ def index():
 
 @app.route('/download', methods=['GET', 'POST'])
 def downloadFile ():
-    return Response(
-        cache.get('converted_file'),
-        mimetype="text/csv",
-        headers={"Content-disposition":
-                 "attachment; filename=SIGAREAS.txt"})
+    if isLoaded():
+        return Response(
+            cache.get('converted_file'),
+            mimetype="text/csv",
+            headers={"Content-disposition":
+                    "attachment; filename=SIGAREAS.txt"})
 
 
 # to avoid f5 form resubmission
 # flask solution Flask-Cache with redirect
 @app.route('/convert', methods=['POST'])
 def convert():
-    if request.method == 'POST':
+    if request.method == 'POST' and isLoaded():
         cache.set('input_file', request.form['input_text'])     
         input_radio_fmts = { key : '' for key in cache.get('input_radio_fmts') } # clean checked state all buttons
         input_radio_fmts[ request.form['input_format'] ] = 'checked'
