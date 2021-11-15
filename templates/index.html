@@ -1,34 +1,45 @@
 {%extends 'base.html' %}
 {%block body %}
-<div class="form-style-9">
-  <div id="header">
-    <h2 style="color: rgb(29, 29, 29); padding: 8px 18px; font-size: 28px;margin: 0px;">Converte memorial para formato SIGAREAS</h2>
-  </div>
-  <div id="container">
-    <div id="first">           
-        <form method="post">
-          <h4 style="color: rgb(29, 29, 29); padding: 8px 18px;font-size: large;margin: 0px;">Arquivo de Entrada</h4>            
-            {% for name, checked in input_radio_fmts.items() %}            
-            <input type="radio" name="input_format" value="{{ name }}" {{ checked }}>{{ name }}</input>
-            {% endfor %}     
-          <textarea id="infile" name="input_text" rows=20>{{ input_text_file }}</textarea>
-          <input class="button" type="submit" formaction="/convert"/>               
-          <input type="file" value="Upload" id="file-uploader">
-        </form>
-    </div>
-    <div id="second">
-      <form method="post">        
-        <h4 style="color: rgb(29, 29, 29); padding: 8px 18px;font-size: large;margin: 0px;">Formato SIGAREAS</h4>
-        <br>
-        <textarea id="outfile" name='out_text', rows=20 readonly>{{ output_text_file }}</textarea>
-        <input type="submit" value="Download" formaction="/download">
-      </form>
-    </div>    
-    <div id="third">
-      {{ bokeh_body_plot }} 
-    </div>
-    <div id="clear"></div>    
-  </div>   
+
+<div class="ontainer-fluid">
+  <h2>Converte formato memorial</h2>  
+  <form method="post" enctype="multipart/form-data" >    	
+    	<div class="form-group">
+        <div class="row">
+          <div class="col">
+            <label for="infile">Formato Entrada:</label>
+            <div class="form-check-inline">
+              {% for name, checked in input_radio_fmts.items() %}    
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="input_format" value="{{ name }}" {{ checked }}>{{ name }}
+              </label>        
+              {% endfor %}   
+            </div>            
+            <textarea class="form-control" rows="20" id="infile" name="input_text">{{ input_text_file }}</textarea>   
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" id="customFile">
+              <label class="custom-file-label" for="customFile">Carregar arquivo</label>
+            </div>
+            <button type="submit" class="btn btn-primary" formaction="/convert">Converter</button>                    
+           </div>                
+          <div class="col">
+            <label for="outfile">Formato Saída:</label>
+            <div class="form-check-inline">
+              {% for name, checked in output_radio_fmts.items() %}    
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="output_format" value="{{ name }}" {{ checked }}>{{ name }}
+              </label>                      
+              {% endfor %} 
+            </div>           
+           <textarea class="form-control" rows="20" cols="20" id="outfile" name='out_text' readonly>{{ output_text_file }}</textarea>      
+           <a href='/download'><button type="button" class="btn btn-primary">Download</button></a>                      
+          </div>
+          <div class="col" id="bokeh_plot">
+             {{ bokeh_body_plot }} 
+          </div> 
+    	</div>
+    </div>     
+  </form>
 </div>
 {% endblock %}
 

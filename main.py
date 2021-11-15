@@ -1,4 +1,6 @@
+from os import read
 import sys, traceback, secrets
+import argparse
 
 from flask import (
     Flask, 
@@ -6,15 +8,17 @@ from flask import (
     Response,
     request, 
     redirect,
-    render_template
+    render_template    
 )
+
+from werkzeug.utils import secure_filename
 
 # server side session, storing data on server not on cookies 
 # https://github.com/pallets-eco/flask-caching
 from flask_caching import Cache
 
 from poligonal.util import (
-    memorialRead, 
+    readMemorial, 
     formatMemorial
 )
 
@@ -36,13 +40,14 @@ def get_app():
 
 @app.after_request
 def add_header(response):
-    # force Chrome or other Browsers to request new page resources after 5 minutes 
+    # force Chrome or other Browsers to request new page resources after 15 minutes 
     # kinda default, avoids outdated page 
-    response.cache_control.max_age = 300 
+    if 'Cache-Control' not in response.headers:
+        response.headers['Cache-Control'] = "max-age=900"
     return response
 
 #### Javascript localSession more or less equivalent  
-#### recommended usage is Flask-Cache for a server-side cache
+#### recommended usage is Flask-Caching for a server-side cache
 #### since Flask.session is a client side cache with cookies
 #### very limitted since creating heavy/huge Cookies (back-forth communication) is not recommended 
 
@@ -62,14 +67,19 @@ xxxx -19°44'16''507 -44°17'45''410
 -19°44'30''662 -44°18'19''307
 -19°44,,37''111 -44°18'19''307
 \zz-19°44'37''111 -44°17'41''703
--19°44'18''174 -44°17'41''703""")
-    cache.set('input_format', 'auto')
+-19°44'18''174 -44°17'41''703""")    
     cache.set('scripts', '')
     cache.set('div', '')   
     cache.set('redirect', False) 
+    cache.set('input_format', 'auto')
+    cache.set('output_format', 'sigareas')
     cache.set('input_radio_fmts', 
         {'auto': 'checked', 
         'gtmpro': ''})
+    cache.set('output_radio_fmts', 
+        {'sigareas': 'checked', 
+        'gtmpro': '',
+        'ddegree' : ''})       
 
 def isLoaded():
     """to check if page is already loaded (n cached)  
@@ -90,26 +100,35 @@ def index():
 
 @app.route('/download', methods=['GET', 'POST'])
 def downloadFile ():
-    if isLoaded():
+    if isLoaded():        
         return Response(
             cache.get('converted_file'),
             mimetype="text/csv",
-            headers={"Content-disposition":
-                    "attachment; filename=SIGAREAS.txt"})
+            headers={"Content-disposition": "attachment; filename=SIGAREAS.txt",
+                      "Cache-Control" : "no-store, max-age=0"  }) # this must NEVER be cached
 
 
 # to avoid f5 form resubmission
-# flask solution Flask-Cache with redirect
+# flask solution Flask-Caching with redirect
 @app.route('/convert', methods=['POST'])
 def convert():
     if request.method == 'POST' and isLoaded():
         cache.set('input_file', request.form['input_text'])     
-        input_radio_fmts = { key : '' for key in cache.get('input_radio_fmts') } # clean checked state all buttons
+        # update input radio buttons format state
+        input_radio_fmts = dict.fromkeys(cache.get('input_radio_fmts')) # clean checked state all buttons
         input_radio_fmts[ request.form['input_format'] ] = 'checked'
-        cache.set('input_radio_fmts', input_radio_fmts) # update radio buttons format state
-        cache.set('input_format', request.form['input_format']) 
+        # set input_format variable        
+        cache.set('input_format', request.form['input_format'])
+        cache.set('input_radio_fmts', input_radio_fmts) 
+        # update output radio buttons format state 
+        output_radio_fmts = dict.fromkeys(cache.get('output_radio_fmts')) # clean checked state all buttons
+        output_radio_fmts[ request.form['output_format'] ] = 'checked'
+        # set input_format variable        
+        cache.set('output_format', request.form['output_format'])
+        cache.set('output_radio_fmts', output_radio_fmts) 
+        # signal comming from redirect
         cache.set('redirect', True)   
-         # avoid form resubmission with F5        
+    # avoid form resubmission with F5        
     return redirect('/')
 
 
@@ -117,12 +136,12 @@ def Convertn_Draw():
     """executes 'de facto' file convertion using poligonal package
     also draw the poligon with the bokeh plot"""
     try:
-        input_file_rd = memorialRead(cache.get('input_file'), fmt=cache.get('input_format'))
-        #print(scripts, div, file=sys.stderr, flush=True)
+        input_file_rd = readMemorial(cache.get('input_file'), fmt=cache.get('input_format'))
+        #print(cache.get('output_format'), file=sys.stderr, flush=True)
         # output file formatted        
-        cache.set('converted_file', formatMemorial(input_file_rd)) 
+        cache.set('converted_file', formatMemorial(input_file_rd, fmt=cache.get('output_format')))        
         #### for plotting memorial 
-        coordinates = memorialRead(cache.get('input_file'), fmt=cache.get('input_format'),
+        coordinates = readMemorial(cache.get('input_file'), fmt=cache.get('input_format'),
             decimal=True)
         scripts, div = bokeh_memorial_draw(coordinates)
         cache.set('scripts', Markup(scripts))
@@ -132,11 +151,13 @@ def Convertn_Draw():
         trace_back_string =  traceback.format_exc()    
         cache.set('converted_file', trace_back_string)        
     return render_template('index.html', 
-        input_text_file=cache.get('input_file'), 
-        output_text_file=cache.get('converted_file'),
-        bokeh_head_plot=cache.get('scripts'), 
-        bokeh_body_plot=cache.get('div'), 
-        input_radio_fmts=cache.get('input_radio_fmts'))  
+            input_text_file=cache.get('input_file'), 
+            output_text_file=cache.get('converted_file'),
+            bokeh_head_plot=cache.get('scripts'), 
+            bokeh_body_plot=cache.get('div'), 
+            input_radio_fmts=cache.get('input_radio_fmts'),
+            output_radio_fmts=cache.get('output_radio_fmts')
+        )  
 
 
 def bokeh_memorial_draw(coordinates):
@@ -164,7 +185,9 @@ def bokeh_memorial_draw(coordinates):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d','--debug', default=False, action='store_true')    
+    args = parser.parse_args()    
     app = get_app()
-    app.run(host='0.0.0.0')#,debug=True)
-
-
+    app.run(host='0.0.0.0', debug=args.debug)    
+    
