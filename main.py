@@ -172,13 +172,18 @@ def bokeh_memorial_draw(coordinates):
         ]
     p = figure(width=300, height=300, toolbar_location="below",  tooltips=TOOLTIPS,
         tools='box_zoom,pan,save,hover,reset,tap,wheel_zoom')
+    
+    # relation between number of points and symbols size 
+    csize = 11 - len(x)/5  # 15:8, 30:5
+    csize = 3 if csize < 3 else csize 
+    lw = 0.5 if csize < 4 else 1
     # draw all coordinates as circles 
-    p.circle(x, y, fill_color="gray", size=8, alpha=0.8)
+    p.circle(x, y, fill_color="gray", size=csize, alpha=0.8)
     # add both a line and circles on the same plot
     x0, y0 = x[0], y[0]
     for x, y in zip(x[1:], y[1:]):
-        p.add_layout(Arrow(end=NormalHead(fill_color="white", size=10, 
-                    fill_alpha=0.2, line_width=1),
+        p.add_layout(Arrow(end=NormalHead(fill_color="white", size=csize+1, 
+                    fill_alpha=0.2, line_width=lw),
                     x_start=x0, y_start=y0, x_end=x, y_end=y))
         x0, y0 = x, y        
     return components(p) # returns scripts, div
