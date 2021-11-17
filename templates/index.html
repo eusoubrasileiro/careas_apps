@@ -13,13 +13,39 @@
                 <input type="radio" class="form-check-input" name="input_format" value="{{ name }}" {{ checked }}>{{ name }}
               </label>        
               {% endfor %}   
-            </div>            
+            </div>   
+            <div class="form-check-inline">
+              {% for name, checked in input_options.items() %}    
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input" name="{{ name }}" {{ checked }}>{{ name }}
+              </label>
+              {% endfor %}  
+            </div>         
             <textarea class="form-control" rows="20" id="infile" name="input_text">{{ input_text_file }}</textarea>   
-            <div class="custom-file">
-              <input type="file" class="custom-file-input" id="customFile">
-              <label class="custom-file-label" for="customFile">Carregar arquivo</label>
-            </div>
-            <button type="submit" class="btn btn-primary" formaction="/convert">Converter</button>                    
+            <div class="row">
+              <div class="col-sm-4">
+                <button type="submit" class="btn btn-primary" formaction="/convert">Converter</button>  
+              </div>
+              <div class="col-sm-8">
+                <div class="custom-file">
+                  <input type="file" class="custom-file-input" id="customFile">
+                  <label class="custom-file-label" for="customFile">Carregar</label>
+                </div>           
+              </div> 
+            </div>          
+            <!-- <div class="float-right">    
+              <a href="#rumos-verdadeiros" class="btn btn-outline-secondary btn-sm" data-toggle="collapse">Avançado</a>
+              <div id="rumos-verdadeiros" class="collapse">
+                <div class="form-group">
+                  <label for="sel1">Rumos Verdadeiros Tolerância:</label>
+                  <select class="form-control form-control-sm" id="sel1">
+                    <option>0,5-metro</option>
+                    <option>1,5-metro</option> 
+                    <option>0-disabled</option>
+                  </select>
+                </div>
+              </div>    
+            </div> -->
            </div>                
           <div class="col">
             <label for="outfile">Formato Saída:</label>

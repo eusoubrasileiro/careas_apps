@@ -19,7 +19,8 @@ from flask_caching import Cache
 
 from poligonal.util import (
     readMemorial, 
-    formatMemorial
+    formatMemorial,
+    forceverdPoligonal
 )
 
 from bokeh.plotting import figure
@@ -80,12 +81,14 @@ xxxx -19°44'16''507 -44°17'45''410
         {'sigareas': 'checked', 
         'gtmpro': '',
         'ddegree' : ''})       
+    cache.set('input_options',  # additional input options check boxes
+        {'rumos-v': 'checked'})
 
 def isLoaded():
     """to check if page is already loaded (n cached)  
     Used to avoid requests->route made even if page is not loaded
     only on Browser Cache"""
-    return cache.get('div') != None
+    return cache.get('div') != None # same xx is True 
 
 @app.route('/')
 def index():    
@@ -114,18 +117,25 @@ def downloadFile ():
 def convert():
     if request.method == 'POST' and isLoaded():
         cache.set('input_file', request.form['input_text'])     
-        # update input radio buttons format state
+        # save input radio buttons format state
         input_radio_fmts = dict.fromkeys(cache.get('input_radio_fmts')) # clean checked state all buttons
         input_radio_fmts[ request.form['input_format'] ] = 'checked'
-        # set input_format variable        
-        cache.set('input_format', request.form['input_format'])
+        #print(request.form['input_format'], file=sys.stderr, flush=True)
         cache.set('input_radio_fmts', input_radio_fmts) 
-        # update output radio buttons format state 
+        # set input_format variable        
+        cache.set('input_format', request.form['input_format'])        
+        # save output radio buttons format state 
         output_radio_fmts = dict.fromkeys(cache.get('output_radio_fmts')) # clean checked state all buttons
         output_radio_fmts[ request.form['output_format'] ] = 'checked'
-        # set input_format variable        
-        cache.set('output_format', request.form['output_format'])
         cache.set('output_radio_fmts', output_radio_fmts) 
+        # set output_format variable        
+        cache.set('output_format', request.form['output_format'])   
+        # save input options checkbox states
+        input_options = dict.fromkeys(cache.get('input_options')) # clean checked state all boxes
+        for option in input_options:
+            input_options[option] = "checked" if request.form.get(option) else ""
+            #print(option, request.form.get(option), file=sys.stderr, flush=True)       
+        cache.set('input_options', input_options)                 
         # signal comming from redirect
         cache.set('redirect', True)   
     # avoid form resubmission with F5        
@@ -137,12 +147,15 @@ def Convertn_Draw():
     also draw the poligon with the bokeh plot"""
     try:
         input_file_rd = readMemorial(cache.get('input_file'), fmt=cache.get('input_format'))
-        #print(cache.get('output_format'), file=sys.stderr, flush=True)
-        # output file formatted        
-        cache.set('converted_file', formatMemorial(input_file_rd, fmt=cache.get('output_format')))        
-        #### for plotting memorial 
+        # for plotting memorial and rumos nsew adjust
         coordinates = readMemorial(cache.get('input_file'), fmt=cache.get('input_format'),
             decimal=True)
+        #print(cache.get('output_format'), file=sys.stderr, flush=True)
+        if cache.get('input_options')['rumos-v'] == 'checked':
+            input_file_rd = forceverdPoligonal(coordinates, debug=True)
+        # output file formatted        
+        cache.set('converted_file', formatMemorial(input_file_rd, fmt=cache.get('output_format')))  
+        #### for plotting memorial 
         scripts, div = bokeh_memorial_draw(coordinates)
         cache.set('scripts', Markup(scripts))
         cache.set('div', Markup(div))
@@ -156,7 +169,8 @@ def Convertn_Draw():
             bokeh_head_plot=cache.get('scripts'), 
             bokeh_body_plot=cache.get('div'), 
             input_radio_fmts=cache.get('input_radio_fmts'),
-            output_radio_fmts=cache.get('output_radio_fmts')
+            output_radio_fmts=cache.get('output_radio_fmts'),
+            input_options=cache.get('input_options')
         )  
 
 

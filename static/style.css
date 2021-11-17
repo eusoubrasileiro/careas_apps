@@ -16,16 +16,14 @@ textarea {
 }
 
 #bokeh_plot {  
-  margin : auto;
-  align-items: center;  
-  justify-content: center;
-}
+  margin: auto;  
+} 
 
-/* set color to the same primary button */
+/* set color to the same as secondary button */
 label.custom-file-label  {  
-  color: #fff;
-  background-color: #007bff;
-  border-color: #007bff;
+  color: rgb(232, 230, 227);
+  background-color: rgb(88, 95, 99);
+  border-color: rgb(102, 94, 83)
 }
 
 /* trying dark mode */
