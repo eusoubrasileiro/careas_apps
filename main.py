@@ -184,16 +184,17 @@ def Convertn_Draw():
     try:
         input_file_rd = readMemorial(cache.get('input_file'), fmt=cache.get('input_format'))
         # for plotting memorial and rumos nsew adjust
-        coordinates = readMemorial(cache.get('input_file'), fmt=cache.get('input_format'),
+        points = readMemorial(cache.get('input_file'), fmt=cache.get('input_format'),
             decimal=True)
         #print(cache.get('output_format'), file=sys.stderr, flush=True)
+        points_verd = None
         if cache.get('input_options')['rumos-v'] == 'checked':
-            input_file_rd = forceverdPoligonal(coordinates, debug=True)
+            input_file_rd = forceverdPoligonal(points, debug=True)
+            points_verd = input_file_rd
         # output file formatted        
         cache.set('converted_file', formatMemorial(input_file_rd, fmt=cache.get('output_format')))  
-        #### for plotting memorial original
-        #### could also plot converted rumos adjusted??
-        scripts, div = bokeh_memorial_draw(coordinates)
+        #### for plotting memorial original also plot converted rumos adjusted
+        scripts, div = bokeh_memorial_draw(points, points_verd)
         cache.set('scripts', Markup(scripts))
         cache.set('div', Markup(div))
     except Exception: 
@@ -211,25 +212,25 @@ def Convertn_Draw():
         )  
 
 
-def bokeh_memorial_draw(coordinates):
-    """draw with bokeh the coordinates passed as circles
+def bokeh_memorial_draw(points, points_verd=None):
+    """draw with bokeh the points passed as circles
     connected with arrows (according to the their order)
     * returns: div html and script tag for embedding """
-    x, y = coordinates[:, 1], coordinates[:, 0]
+    x, y = points[:, 1], points[:, 0]
 
     TOOLTIPS = [ # allowed hover tooltips
         ("index", "$index"),
-        ("(x,y)", "($x, $y)") 
+        ("(x,y)", "($x{0,0.00000000}, $y{0,0.00000000})") 
         ]
-    p = figure(width=300, height=300, toolbar_location="below",  tooltips=TOOLTIPS,
+    p = figure(width=350, height=350, toolbar_location="below",  tooltips=TOOLTIPS,
         tools='box_zoom,pan,save,hover,reset,tap,wheel_zoom')
     
     # relation between number of points and symbols size 
     csize = 11 - len(x)/5  # 15:8, 30:5
     csize = 3 if csize < 3 else csize 
     lw = 0.5 if csize < 4 else 1
-    # draw all coordinates as circles 
-    p.circle(x, y, fill_color="gray", size=csize, alpha=0.8)
+    # draw all points as circles 
+    p.circle(x, y, fill_color="gray", legend_label="input", size=csize, alpha=0.8)
     # add both a line and circles on the same plot
     x0, y0 = x[0], y[0]
     for x, y in zip(x[1:], y[1:]):
@@ -237,6 +238,16 @@ def bokeh_memorial_draw(coordinates):
                     fill_alpha=0.2, line_width=lw),
                     x_start=x0, y_start=y0, x_end=x, y_end=y))
         x0, y0 = x, y        
+
+    if points_verd is not None:
+        x, y = points_verd[:, 1], points_verd[:, 0]
+        p.cross(x, y, color="red", legend_label="rumos-v", size=csize, alpha=0.8)
+
+    p.legend.label_text_font = "times"
+    p.legend.background_fill_alpha = 0.1
+    p.legend.location = "top_left"
+    p.legend.background_fill_color = "gray"
+
     return components(p) # returns scripts, div
 
 

@@ -12,10 +12,10 @@ footer {
 } 
 
 textarea { 
-  min-width: 350px;   
   resize: none;
+  min-width: 350px;     
   min-height: 200px;
-  max-height: 600px;  
+  max-height: 400px;  
   background-color: #202324;
   white-space: pre;
 }
