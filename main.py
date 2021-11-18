@@ -3,6 +3,8 @@ import pathlib
 import argparse, json 
 import urllib.request
 
+import threading # to read/write file in background
+
 from flask import (
     Flask, 
     Markup, 
@@ -34,19 +36,22 @@ app.config['SECRET_KEY'] = secrets.token_hex(16)
 app.config['CACHE_DIR'] = 'cache'
 app.config['CACHE_TYPE'] = 'FileSystemCache' # SimpleCache fails on multiple works gunicorn
 app.config['CACHE_THRESHOLD'] = 10000
+# static files
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 300
 
 cache = Cache(app)
 
 def get_app():
     return app
 
-@app.after_request
-def add_header(response):
-    # force Chrome or other Browsers to request new page resources after 15 minutes 
-    # kinda default, avoids outdated page 
-    if 'Cache-Control' not in response.headers:
-        response.headers['Cache-Control'] = "max-age=900"
-    return response
+# not needed anymore since `downloadFile` already sets the header cache control to 0 
+# @app.after_request
+# def add_header(response):
+#     # force Chrome or other Browsers to request new page resources after 15 minutes 
+#     # kinda default, avoids outdated page 
+#     if 'Cache-Control' not in response.headers: # this checks to just set cache only for dynamic content
+#         response.headers['Cache-Control'] = "max-age=900"
+#     return response
 
 
 def save_visits(ip, headers):
@@ -125,8 +130,8 @@ def index():
     # if empty cache means first time loaded the page
     if (not isLoaded()) or (not cache.get('redirect')): # empty cache not a redirect       
         #print("The cache['div'] is: ", cache.get('div'), file=sys.stderr, flush=True)
-        load_default_values() # initiate the current state of the Page                
-        save_visits(request.remote_addr, request.headers)        
+        load_default_values() # initiate the current state of the Page      
+        threading.Thread(target=save_visits, args=(request.remote_addr, request.headers)).start()        
         # when the tab, browser is closed the cache is deleted     
     cache.set('redirect', False)    
     return Convertn_Draw()
