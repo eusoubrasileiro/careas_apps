@@ -9,16 +9,18 @@
             <label for="infile">Formato Entrada:</label>
             <div class="form-check-inline">
               {% for name, checked in input_radio_fmts.items() %}    
-              <label class="form-check-label">
+              <label class="form-check-label">                
                 <input type="radio" class="form-check-input" name="input_format" value="{{ name }}" {{ checked }}>{{ name }}
               </label>        
               {% endfor %}   
             </div>   
             <div class="form-check-inline">
               {% for name, checked in input_options.items() %}    
-              <label class="form-check-label">
-                <input type="checkbox" class="form-check-input" name="{{ name }}" {{ checked }}>{{ name }}
-              </label>
+              <a href="#" data-toggle="tooltip" data-placement="right" title="" id="{{ name }}">
+                <label class="form-check-label">
+                  <input type="checkbox" class="form-check-input" name="{{ name }}" {{ checked }}>{{ name }}
+                </label>
+              </a>
               {% endfor %}  
             </div>         
             <textarea class="form-control" rows="20" id="infile" name="input_text">{{ input_text_file }}</textarea>   
