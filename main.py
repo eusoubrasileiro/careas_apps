@@ -1,6 +1,7 @@
-from os import read
 import sys, traceback, secrets
-import argparse
+import pathlib
+import argparse, json 
+import urllib.request
 
 from flask import (
     Flask, 
@@ -46,6 +47,34 @@ def add_header(response):
     if 'Cache-Control' not in response.headers:
         response.headers['Cache-Control'] = "max-age=900"
     return response
+
+
+def save_visits(ip):
+    """save clients visited ip and info on visitors.txt file"""
+    try:
+        client_ips = {}
+
+        if pathlib.Path("visitors.txt").is_file():            
+            with open('visitors.txt', 'r') as f:        
+                client_ips.update(json.loads(f.read()))
+
+        # get geolocation 
+        with urllib.request.urlopen("https://geolocation-db.com/jsonp/"+ip) as url:
+            data = url.read().decode()
+            data = data.split("(")[1].strip(")")
+            ipdata = {k: json.loads(data).get(k, None) for k in ("postal","city","state", "latitude", "longitude")}       
+
+        if ip in client_ips:
+            client_ips[ip]['count'] += 1
+        else:
+            ipdata.update({'count' : 1})
+            client_ips.update({ip : ipdata})
+            
+        with open('visitors.txt', 'w') as f:   
+            f.write(json.dumps(client_ips))
+    except:
+        print("save_visits exception ", traceback.format_exc(), file=sys.stderr)
+
 
 #### Javascript localSession more or less equivalent  
 #### recommended usage is Flask-Caching for a server-side cache
@@ -96,6 +125,7 @@ def index():
     if (not isLoaded()) or (not cache.get('redirect')): # empty cache not a redirect       
         #print("The cache['div'] is: ", cache.get('div'), file=sys.stderr, flush=True)
         load_default_values() # initiate the current state of the Page                
+        save_visits(request.remote_addr)
         # when the tab, browser is closed the cache is deleted 
     cache.set('redirect', False)    
     return Convertn_Draw()
@@ -155,7 +185,8 @@ def Convertn_Draw():
             input_file_rd = forceverdPoligonal(coordinates, debug=True)
         # output file formatted        
         cache.set('converted_file', formatMemorial(input_file_rd, fmt=cache.get('output_format')))  
-        #### for plotting memorial 
+        #### for plotting memorial original
+        #### could also plot converted rumos adjusted??
         scripts, div = bokeh_memorial_draw(coordinates)
         cache.set('scripts', Markup(scripts))
         cache.set('div', Markup(div))
