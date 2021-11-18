@@ -49,7 +49,7 @@ def add_header(response):
     return response
 
 
-def save_visits(ip):
+def save_visits(ip, headers):
     """save clients visited ip and info on visitors.txt file"""
     try:
         client_ips = {}
@@ -62,7 +62,8 @@ def save_visits(ip):
         with urllib.request.urlopen("https://geolocation-db.com/jsonp/"+ip) as url:
             data = url.read().decode()
             data = data.split("(")[1].strip(")")
-            ipdata = {k: json.loads(data).get(k, None) for k in ("postal","city","state", "latitude", "longitude")}       
+            ipdata = {k: json.loads(data).get(k, None) for k in ("postal","city","state", "latitude", "longitude")} 
+            ipdata.update({"User-Agent": headers.get('User-Agent')})   # add user-agent behind the request
 
         if ip in client_ips:
             client_ips[ip]['count'] += 1
@@ -125,8 +126,8 @@ def index():
     if (not isLoaded()) or (not cache.get('redirect')): # empty cache not a redirect       
         #print("The cache['div'] is: ", cache.get('div'), file=sys.stderr, flush=True)
         load_default_values() # initiate the current state of the Page                
-        save_visits(request.remote_addr)
-        # when the tab, browser is closed the cache is deleted 
+        save_visits(request.remote_addr, request.headers)        
+        # when the tab, browser is closed the cache is deleted     
     cache.set('redirect', False)    
     return Convertn_Draw()
 
