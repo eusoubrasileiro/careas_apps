@@ -1,10 +1,15 @@
-.container-fluid {
+#main-container {
   border-radius: 20px;  
   border-style: groove;
   border-color: rgb(192, 205, 247);
   border-width: 3px;
   padding: 10px;
 }
+
+footer {   
+  background-color: lightgray;
+  padding: 2%;
+} 
 
 textarea { 
   min-width: 350px;   

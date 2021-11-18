@@ -11,9 +11,15 @@
     {{ bokeh_head_plot }}
   </head>
   <body>
-    <div class="container">
-      {% block body %} {% endblock %}
-    </div>
+    <div class="d-flex flex-column min-vh-100">      
+      {% block body %} {% endblock %}      
+    </div>    
+    <footer class="footer">      
+        <div class="d-flex flex-column justify-content-center align-items-center ">          
+        <div>Powered by Python + Flask & <a href="https://geographiclib.sourceforge.io/">GeographicLib </a>for Geodesic</div>
+          <p>Made by <a href="https://stackoverflow.com/users/1207193/iambr?tab=profile">iambr</a></p>           
+        </div>      
+    </footer>
     <!-- Optional JavaScript -->    
     <script src="/static/bokeh-2.4.1.min.js"></script>    
     <script src="/static/main.js"></script>     
