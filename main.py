@@ -3,7 +3,7 @@ import pathlib
 import argparse, json 
 import urllib.request
 
-import threading # to read/write file in background
+import threading # to read/write file in background reduced first time loading from 1000ms to 200 ms
 
 from flask import (
     Flask, 
