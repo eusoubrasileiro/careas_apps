@@ -9,9 +9,11 @@
             <label for="infile">Formato Entrada:</label>
             <div class="form-check-inline">
               {% for name, checked in input_radio_fmts.items() %}    
-              <label class="form-check-label">                
-                <input type="radio" class="form-check-input" name="input_format" value="{{ name }}" {{ checked }}>{{ name }}
-              </label>        
+              <a href="#" data-toggle="tooltip" data-placement="right" title="" id="{{ name }}">
+                <label class="form-check-label">                
+                  <input type="radio" class="form-check-input" name="input_format" value="{{ name }}" {{ checked }}>{{ name }}
+                </label>        
+              </a>
               {% endfor %}   
             </div>   
             <div class="form-check-inline">

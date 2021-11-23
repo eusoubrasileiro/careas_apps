@@ -20,7 +20,9 @@ $(".custom-file-input").on("change", function() {
 // bootstrap javascripts tooltips can persist even after tab-closed, 
 // but javascripts is already stored cached by the browser for 15 minutes so ...
 const tooltips = new Map([
-  ["rumos-v", "Ajusta latitude e longitude para rumos verdadeiros (NSEW)"]
+  ["rumos-v", "Ajusta latitude/longitude para rumos verdadeiros (NSEW)"],
+  ["scm", "grau° minuto' segundo'' milisegundos (Cadatro Mineiro)"],
+  ["gtmpro", "grau° minuto' segundo.decimal'' (TrackMaker)"]
 ]);
 // set tooltips by here
 tooltips.forEach (function(title, id) {  

@@ -107,10 +107,10 @@ xxxx -19°44'16''507 -44°17'45''410
     cache.set('scripts', '')
     cache.set('div', '')   
     cache.set('redirect', False) 
-    cache.set('input_format', 'auto')
+    cache.set('input_format', 'scm')
     cache.set('output_format', 'sigareas')
     cache.set('input_radio_fmts', 
-        {'auto': 'checked', 
+        {'scm': 'checked', 
         'gtmpro': ''})
     cache.set('output_radio_fmts', 
         {'sigareas': 'checked', 
