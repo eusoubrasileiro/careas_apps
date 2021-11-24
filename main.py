@@ -13,6 +13,7 @@ from flask import (
     redirect,
     render_template    
 )
+from poligonal.util import NotPairofCoordinatesError
 
 from werkzeug.utils import secure_filename
 
@@ -23,7 +24,9 @@ from flask_caching import Cache
 from poligonal.util import (
     readMemorial, 
     formatMemorial,
-    forceverdPoligonal
+    forceverdPoligonal,
+    forceverdFailed,
+    NotPairofCoordinatesError
 )
 
 from bokeh.plotting import figure
@@ -118,6 +121,7 @@ xxxx -19°44'16''507 -44°17'45''410
         'ddegree' : ''})       
     cache.set('input_options',  # additional input options check boxes
         {'rumos-v': 'checked'})
+    cache.set('rumos_v_tol', '0.5')
 
 def isLoaded():
     """to check if page is already loaded (n cached)  
@@ -171,7 +175,8 @@ def convert():
         for option in input_options:
             input_options[option] = "checked" if request.form.get(option) else ""
             #print(option, request.form.get(option), file=sys.stderr, flush=True)       
-        cache.set('input_options', input_options)                 
+        cache.set('input_options', input_options)    
+        cache.set('rumos_v_tol', request.form['rumos_v_tol'])              
         # signal comming from redirect
         cache.set('redirect', True)   
     # avoid form resubmission with F5        
@@ -188,8 +193,8 @@ def Convertn_Draw():
             decimal=True)
         #print(cache.get('output_format'), file=sys.stderr, flush=True)
         points_verd = None
-        if cache.get('input_options')['rumos-v'] == 'checked':
-            input_file_rd = forceverdPoligonal(points, debug=True)
+        if cache.get('input_options')['rumos-v'] == 'checked':            
+            input_file_rd = forceverdPoligonal(points, tolerancem=float(cache.get('rumos_v_tol')), debug=True)
             points_verd = input_file_rd
         # output file formatted        
         cache.set('converted_file', formatMemorial(input_file_rd, fmt=cache.get('output_format')))  
@@ -197,6 +202,14 @@ def Convertn_Draw():
         scripts, div = bokeh_memorial_draw(points, points_verd)
         cache.set('scripts', Markup(scripts))
         cache.set('div', Markup(div))
+    except forceverdFailed:
+        # uncheck rumos-v and run again # show a message?
+        cache.set('converted_file', "Não é possivel ajustar para rumos verdadeiros\n"
+                                    "(rumos-v) com esse valor de tolerância (m).\n"
+                                    "Modifique a tolerância (metros) em Mais opções.\n")   
+    except NotPairofCoordinatesError:
+        cache.set('converted_file', "Falta um membro de uma coordenada\n"
+                                    "(latitude ou longitude)\n")  
     except Exception: 
         print(traceback.format_exc(), file=sys.stderr, flush=True)
         trace_back_string =  traceback.format_exc()    
@@ -208,7 +221,8 @@ def Convertn_Draw():
             bokeh_body_plot=cache.get('div'), 
             input_radio_fmts=cache.get('input_radio_fmts'),
             output_radio_fmts=cache.get('output_radio_fmts'),
-            input_options=cache.get('input_options')
+            input_options=cache.get('input_options'),
+            rumos_v_tol=cache.get('rumos_v_tol')
         )  
 
 

@@ -37,19 +37,22 @@
                 </div>           
               </div> 
             </div>          
-            <!-- <div class="float-right">    
-              <a href="#rumos-verdadeiros" class="btn btn-outline-secondary btn-sm" data-toggle="collapse">Avançado</a>
-              <div id="rumos-verdadeiros" class="collapse">
-                <div class="form-group">
-                  <label for="sel1">Rumos Verdadeiros Tolerância:</label>
-                  <select class="form-control form-control-sm" id="sel1">
-                    <option>0,5-metro</option>
-                    <option>1,5-metro</option> 
-                    <option>0-disabled</option>
-                  </select>
+            <div class="row">
+              <div class="col-sm-11">
+              <a href="#rumos-verdadeiros" class="btn btn-outline-secondary btn-sm" data-toggle="collapse">Mais opções</a>
+                <div id="rumos-verdadeiros" class="collapse">
+                  <div class="input-group mb-3 input-group-sm">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><b>rumos-v</b>erdadeiros tolerância:</span>
+                   </div>
+                   <input type="number" class="form-control" min=0.01 max=100 maxlength=3 name="rumos_v_tol" value="{{ rumos_v_tol }}">
+                   <div class="input-group-append">
+                    <span class="input-group-text">(m)</span>
+                  </div>
+                 </div>               
                 </div>
-              </div>    
-            </div> -->
+              </div>   
+            </div>
            </div>                
           <div class="col">
             <label for="outfile">Formato Saída:</label>
