@@ -6,13 +6,12 @@ from threading import Thread
 import os 
 
 def call_script_https():
-    os.system(r"""/usr/bin/authbind /home/andre/careas_apps/pythonvenv/bin/gunicorn -w 5 
-    --certfile /home/andre/careas_apps/certs/fullchain.pem --keyfile /home/andre/careas_apps/certs/privkey.pem 
-    --bind 0.0.0.0:443  wsgi:app""")
+    os.system(r"""cd /home/andre/careas_apps
+    /usr/bin/authbind /home/andre/careas_apps/pythonvenv/bin/gunicorn -w 5 --certfile /home/andre/careas_apps/certs/fullchain.pem --keyfile /home/andre/careas_apps/certs/privkey.pem --bind 0.0.0.0:443  wsgi:app""")
 
 def call_script_http():
-    os.system(r"""/usr/bin/authbind /home/andre/careas_apps/pythonvenv/bin/gunicorn -w 2 
-    --bind 0.0.0.0:80  wsgi:app""")
+    os.system(r"""cd /home/andre/careas_apps
+    /usr/bin/authbind /home/andre/careas_apps/pythonvenv/bin/gunicorn -w 2 --bind 0.0.0.0:80  wsgi:app""")
 
 t_http = Thread(target=call_script_http)
 t_https = Thread(target=call_script_https)
