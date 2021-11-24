@@ -7,7 +7,7 @@ User=andre
 Group=www-data
 WorkingDirectory=/home/andre/careas_apps
 Environment="PATH=/home/andre/careas_apps/pythonvenv/bin"
-ExecStart=/home/andre/careas_apps/scripts/careas_apps_webserver.sh
+ExecStart=ExecStart=python /home/andre/careas_apps/scripts/careas_apps_webserver.py
 
 [Install]
 WantedBy=multi-user.target
