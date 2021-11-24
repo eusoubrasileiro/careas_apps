@@ -9,12 +9,13 @@ source /home/andre/careas_apps/pythonvenv/bin/activate
 python3 <<HEREDOC
 import os 
 
+# the code bellow runs on sh not bash so 'source' should be '.'
 os.system(r"""cd /home/andre/careas_apps
-source /home/andre/careas_apps/pythonvenv/bin/activate
+. /home/andre/careas_apps/pythonvenv/bin/activate
 /usr/bin/authbind gunicorn -w 5 --certfile /home/andre/careas_apps/certs/fullchain.pem --keyfile /home/andre/careas_apps/certs/privkey.pem --bind 0.0.0.0:443  wsgi:app &""")
 
 os.system(r"""cd /home/andre/careas_apps
-source /home/andre/careas_apps/pythonvenv/bin/activate
+. /home/andre/careas_apps/pythonvenv/bin/activate
 /usr/bin/authbind gunicorn -w 2 --bind 0.0.0.0:80  wsgi:app &""")
 
 HEREDOC
