@@ -4,14 +4,20 @@
 # so let's  
 # replace by a Python script with two os.system
 
-c=`cat <<EOF
+source /home/andre/careas_apps/pythonvenv/bin/activate
+
+python3 <<HEREDOC
 import os 
-os.system(r"""source /home/andre/careas_apps/pythonvenv/bin/activate
-/usr/bin/authbind gunicorn -w 5 --certfile /home/andre/careas_apps/certs/fullchain.pem --keyfile /home/andre/careas_apps/certs/privkey.pem --bind 0.0.0.0:443  wsgi:app &""") 
-os.system("""source /home/andre/careas_apps/pythonvenv/bin/activate
+
+os.system(r"""cd /home/andre/careas_apps
+source /home/andre/careas_apps/pythonvenv/bin/activate
+/usr/bin/authbind gunicorn -w 5 --certfile /home/andre/careas_apps/certs/fullchain.pem --keyfile /home/andre/careas_apps/certs/privkey.pem --bind 0.0.0.0:443  wsgi:app &""")
+
+os.system(r"""cd /home/andre/careas_apps
+source /home/andre/careas_apps/pythonvenv/bin/activate
 /usr/bin/authbind gunicorn -w 2 --bind 0.0.0.0:80  wsgi:app &""")
-EOF`
-python3 -c "$c"
+
+HEREDOC
 
 # 2 workers for http  and 5 https
 # /usr/bin/authbind gunicorn -D -w 2 --bind 0.0.0.0:80  wsgi:app 
