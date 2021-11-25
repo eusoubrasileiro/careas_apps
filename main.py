@@ -1,5 +1,5 @@
 import sys, traceback, secrets
-import pathlib
+import os
 import argparse, json 
 import urllib.request
 
@@ -62,7 +62,7 @@ def save_visits(ip, headers):
     try:
         client_ips = {}
 
-        if pathlib.Path("visitors.txt").is_file():            
+        if os.path.isfile('visitors.txt') and os.path.getsize('visitors.txt') > 0:            
             with open('visitors.txt', 'r') as f:        
                 client_ips.update(json.loads(f.read()))
 
