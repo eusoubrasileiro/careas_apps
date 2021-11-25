@@ -5,16 +5,25 @@
 from threading import Thread
 import os 
 
-def call_script_https():
-    os.system(r"""cd /home/andre/careas_apps
-    /usr/bin/authbind /home/andre/careas_apps/pythonvenv/bin/gunicorn -w 5 --certfile /home/andre/careas_apps/certs/fullchain.pem --keyfile /home/andre/careas_apps/certs/privkey.pem --bind 0.0.0.0:443  wsgi:app""")
+def gunicorn_https():
+    os.system("cd /home/andre/careas_apps \n"
+    "/usr/bin/authbind /home/andre/careas_apps/pythonvenv/bin/gunicorn -w 5 "
+    "--certfile /home/andre/careas_apps/certs/fullchain.pem --keyfile /home/andre/careas_apps/certs/privkey.pem "
+    "--bind 0.0.0.0:443 --access-logfile=/home/andre/careas_apps/access_https.log "
+    "--capture-output --enable-stdio-inheritance "
+    "wsgi:app")
 
-def call_script_http():
-    os.system(r"""cd /home/andre/careas_apps
-    /usr/bin/authbind /home/andre/careas_apps/pythonvenv/bin/gunicorn -w 2 --bind 0.0.0.0:80  wsgi:app""")
+def gunicorn_http():
+    os.system("cd /home/andre/careas_apps \n"
+    "/usr/bin/authbind /home/andre/careas_apps/pythonvenv/bin/gunicorn -w 5 "    
+    "--bind 0.0.0.0:80 --access-logfile=/home/andre/careas_apps/access_http.log "
+    "--capture-output --enable-stdio-inheritance "
+    "wsgi:app")
 
-t_http = Thread(target=call_script_http)
-t_https = Thread(target=call_script_https)
+#--access-logfile=/logs/rest.app/access.log
+
+t_http = Thread(target=gunicorn_http)
+t_https = Thread(target=gunicorn_https)
 t_http.start()
 t_https.start()
 t_http.join()
