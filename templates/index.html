@@ -38,18 +38,25 @@
               </div> 
             </div>          
             <div class="row">
-              <div class="col-sm-11">
+              <div class="col">
               <a href="#rumos-verdadeiros" class="btn btn-outline-secondary btn-sm" data-toggle="collapse">Mais opções</a>
-                <div id="rumos-verdadeiros" class="collapse">
-                  <div class="input-group mb-3 input-group-sm">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><b>rumos-v</b>erdadeiros tolerância:</span>
-                   </div>
-                   <input type="number" class="form-control" name="rumos_v_tol" value="{{ rumos_v_tol }}">
-                   <div class="input-group-append">
-                    <span class="input-group-text">(m)</span>
-                  </div>
-                 </div>               
+                <div id="rumos-verdadeiros" class="collapse">  
+                    <div class="container" style="display:flex;">                                         
+                        <div class="input-group mb-3 input-group-sm">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text"><b>rumos-v</b>erdadeiros tolerância</span>
+                          </div>                                 
+                          <input type="number" class="form-control" name="rumos_v_tol" value="{{ rumos_v_tol }}">                                            
+                          <div class="input-group-append">
+                            <span class="input-group-text">m</span>
+                          </div>                                                               
+                        </div>  
+                        <div>                                                        
+                          <a href="#" data-toggle="tooltip" data-placement="right" title="" id="rumos_v_tol">
+                            <i class="fa fa-question-circle" style="font-size:1.5rem"></i>                          
+                          </a>                                                         
+                        </div>                                   
+                    </div>
                 </div>
               </div>   
             </div>

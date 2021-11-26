@@ -22,8 +22,10 @@ $(".custom-file-input").on("change", function() {
 const tooltips = new Map([
   ["rumos-v", "Ajusta latitude/longitude para rumos verdadeiros (NSEW)"],
   ["scm", "grau° minuto' segundo'' milisegundos (Cadatro Mineiro)"],
-  ["gtmpro", "grau° minuto' segundo.decimal'' (TrackMaker)"]
+  ["gtmpro", "grau° minuto' segundo.decimal'' (TrackMaker)"],
+  ["rumos_v_tol", "Latitudes ou longitudes com distância geodésica menor que a máxima aqui especificada são aproximadas. (Elipsoide SIRGAS 2000)"]
 ]);
+// é utilizada para aproximar latitudes e,ou longitudes.
 // set tooltips by here
 tooltips.forEach (function(title, id) {  
   document.getElementById(id)['title'] = title;
