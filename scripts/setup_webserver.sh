@@ -3,7 +3,7 @@ sudo apt-get install python3-venv snapd authbind -y
 
 cd ~/careas_apps
 if [ ! -d ~/careas_apps/pythonvenv ]; then 
-    python3 -m venv pythonvenv
+    python -m venv pythonvenv
 fi 
 source pythonvenv/bin/activate
 pip install -r requeriments.txt
@@ -32,16 +32,13 @@ if [ ! -d ~/careas_apps/certs ]; then # only if not created yet
 fi
 
 # careas_apps running by user andre
-# to allow run on port 80 HTTP and 443 HTTPS  
-# inside a python virtual env 
-# since sudo would not work properly
+# to allow run on port 5000 (not 80 to allow nginx control) 
+# HTTPS and forward will be dealt by nginx
+# since sudo would not work properly?
 # so passing access to specified user
-sudo touch /etc/authbind/byport/80
-sudo chmod 500 /etc/authbind/byport/80
-sudo chown andre /etc/authbind/byport/80
-sudo touch /etc/authbind/byport/443
-sudo chmod 500 /etc/authbind/byport/443
-sudo chown andre /etc/authbind/byport/443
+sudo touch /etc/authbind/byport/5000
+sudo chmod 500 /etc/authbind/byport/5000
+sudo chown andre /etc/authbind/byport/5000
 
 # service still runs on my current user
 sudo chmod 744 ~/careas_apps/scripts/careas_apps_webserver.py
@@ -50,6 +47,11 @@ sudo chmod 664 /etc/systemd/system/careas_apps_webserver.service
 sudo systemctl daemon-reload
 sudo systemctl enable careas_apps_webserver
 sudo systemctl start careas_apps_webserver
+
+
+cat ~/careas_apps/scripts/sites_nginx.conf >> /etc/nginx/sites-enabled/sites_nginx.conf
+
+sudo systemctl restart nginx
 
 # namecheap dynamic dns
 # https://www.namecheap.com/support/knowledgebase/article.aspx/5/11/are-there-any-alternate-dynamic-dns-clients/
