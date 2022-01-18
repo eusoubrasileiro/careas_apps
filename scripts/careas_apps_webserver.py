@@ -5,7 +5,7 @@ import os
 def gunicorn_http():
     os.system("cd /home/andre/careas_apps \n"
     "/usr/bin/authbind /home/andre/careas_apps/pythonvenv/bin/gunicorn -w 5 "    
-    "--bind 0.0.0.0:5000 --access-logfile=/home/andre/careas_apps/access_http.log "
+    "--bind 0.0.0.0:8000 --access-logfile=/home/andre/careas_apps/access_http.log "
     "--capture-output --enable-stdio-inheritance "
     "wsgi:app")
 
