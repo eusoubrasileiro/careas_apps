@@ -1,9 +1,9 @@
 #!/bin/bash
-sudo apt-get install python3-venv snapd authbind -y
+sudo apt-get install python3.8-venv snapd authbind -y
 
 cd ~/careas_apps
 if [ ! -d ~/careas_apps/pythonvenv ]; then 
-    python -m venv pythonvenv
+    python3 -m venv pythonvenv
 fi 
 source pythonvenv/bin/activate
 pip install -r requeriments.txt
