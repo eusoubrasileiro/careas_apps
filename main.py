@@ -2,6 +2,7 @@ import sys, traceback, secrets
 import os
 import argparse, json 
 import urllib.request
+import datetime
 
 import threading # to read/write file in background reduced first time loading from 1000ms to 200 ms
 
@@ -15,7 +16,6 @@ from flask import (
 )
 from poligonal.util import NotPairofCoordinatesError
 
-from werkzeug.utils import secure_filename
 
 # server side session, storing data on server not on cookies 
 # https://github.com/pallets-eco/flask-caching
@@ -46,43 +46,6 @@ cache = Cache(app)
 
 def get_app():
     return app
-
-# not needed anymore since `downloadFile` already sets the header cache control to 0 
-# @app.after_request
-# def add_header(response):
-#     # force Chrome or other Browsers to request new page resources after 15 minutes 
-#     # kinda default, avoids outdated page 
-#     if 'Cache-Control' not in response.headers: # this checks to just set cache only for dynamic content
-#         response.headers['Cache-Control'] = "max-age=900"
-#     return response
-
-
-def save_visits(ip, headers):
-    """save clients visited ip and info on visitors.txt file"""
-    try:
-        client_ips = {}
-
-        if os.path.isfile('visitors.txt') and os.path.getsize('visitors.txt') > 0:            
-            with open('visitors.txt', 'r') as f:        
-                client_ips.update(json.loads(f.read()))
-
-        # get geolocation 
-        with urllib.request.urlopen("https://geolocation-db.com/jsonp/"+ip) as url:
-            data = url.read().decode()
-            data = data.split("(")[1].strip(")")
-            ipdata = {k: json.loads(data).get(k, None) for k in ("postal","city","state", "latitude", "longitude")} 
-            ipdata.update({"User-Agent": headers.get('User-Agent')})   # add user-agent behind the request
-
-        if ip in client_ips:
-            client_ips[ip]['count'] += 1
-        else:
-            ipdata.update({'count' : 1})
-            client_ips.update({ip : ipdata})
-            
-        with open('visitors.txt', 'w') as f:   
-            f.write(json.dumps(client_ips))
-    except:
-        print("save_visits exception ", traceback.format_exc(), file=sys.stderr)
 
 
 #### Javascript localSession more or less equivalent  
@@ -130,12 +93,11 @@ def isLoaded():
     return cache.get('div') != None # same xx is True 
 
 @app.route('/')
-def index():    
+def index():
     # if empty cache means first time loaded the page
     if (not isLoaded()) or (not cache.get('redirect')): # empty cache not a redirect       
         #print("The cache['div'] is: ", cache.get('div'), file=sys.stderr, flush=True)
-        load_default_values() # initiate the current state of the Page      
-        threading.Thread(target=save_visits, args=(request.remote_addr, request.headers)).start()        
+        load_default_values() # initiate the current state of the Page
         # when the tab, browser is closed the cache is deleted     
     cache.set('redirect', False)    
     return Convertn_Draw()
@@ -213,7 +175,7 @@ def Convertn_Draw():
     except Exception: 
         print(traceback.format_exc(), file=sys.stderr, flush=True)
         trace_back_string =  traceback.format_exc()    
-        cache.set('converted_file', trace_back_string)        
+        cache.set('converted_file', trace_back_string)    
     return render_template('index.html', 
             input_text_file=cache.get('input_file'), 
             output_text_file=cache.get('converted_file'),
@@ -270,5 +232,6 @@ if __name__ == "__main__":
     parser.add_argument('-d','--debug', default=False, action='store_true')    
     args = parser.parse_args()    
     app = get_app()
+    app.config['Debug'] = args.debug
     app.run(host='0.0.0.0', debug=args.debug)    
     
