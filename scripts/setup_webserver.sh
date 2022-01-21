@@ -31,23 +31,21 @@ if [ ! -d ~/careas_apps/certs ]; then # only if not created yet
    sudo chown -R andre:andre certs/
 fi
 
-# careas_apps running by user andre
-# to allow run on port 5000 (not 80 to allow nginx control) 
+# careas_apps running by user andre (better control not root)
+# to allow run on port 8000 (not 80 to allow nginx control) 
 # HTTPS and forward will be dealt by nginx
-# since sudo would not work properly?
 # so passing access to specified user
-sudo touch /etc/authbind/byport/5000
-sudo chmod 500 /etc/authbind/byport/5000
-sudo chown andre /etc/authbind/byport/5000
+sudo touch /etc/authbind/byport/8000
+sudo chmod 500 /etc/authbind/byport/8000
+sudo chown andre /etc/authbind/byport/8000
 
 # service still runs on my current user
-sudo chmod 744 ~/careas_apps/scripts/careas_apps_webserver.py
+sudo systemctl stop careas_apps_webserver
 sudo cp ~/careas_apps/scripts/careas_apps_webserver.service /etc/systemd/system/
 sudo chmod 664 /etc/systemd/system/careas_apps_webserver.service
 sudo systemctl daemon-reload
 sudo systemctl enable careas_apps_webserver
 sudo systemctl start careas_apps_webserver
-
 
 cat ~/careas_apps/scripts/sites_nginx.conf >> /etc/nginx/sites-enabled/sites_nginx.conf
 
