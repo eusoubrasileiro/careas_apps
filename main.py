@@ -1,10 +1,6 @@
 import sys, traceback, secrets
-import os
-import argparse, json 
-import urllib.request
+import argparse
 import datetime
-
-import threading # to read/write file in background reduced first time loading from 1000ms to 200 ms
 
 from flask import (
     Flask, 
@@ -36,11 +32,17 @@ from bokeh.models import Arrow, NormalHead
 app = Flask('careas-tools')
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 # Flask-Cache package
-app.config['CACHE_DIR'] = 'cache'
-app.config['CACHE_TYPE'] = 'FileSystemCache' # SimpleCache fails on multiple works gunicorn
+app.config['CACHE_DIR'] = '/tmp/careas_apps_cache/' 
+app.config['CACHE_TYPE'] = 'FileSystemCache' 
+# permissions/bug delays of as much as 16 seconds, fixed by
+# 1. cache folder set as `sudo mount -t tmpfs -o size=50m tmpfs /home/andre/careas_apps/cache/`
+# 2. setting this + chmod -r cache seams to 
+# app.config['CACHE_OPTIONS'] = { 'mode' : 777}
+# https://stackoverflow.com/q/70836021/1207193
 app.config['CACHE_THRESHOLD'] = 10000
 # static files
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 300
+app.config['Debug'] = False
 
 cache = Cache(app)
 
@@ -94,6 +96,8 @@ def isLoaded():
 
 @app.route('/')
 def index():
+    #if app.config['Debug']:        
+    #    print('debug: entry time: ', datetime.datetime.now(), flush=True)        
     # if empty cache means first time loaded the page
     if (not isLoaded()) or (not cache.get('redirect')): # empty cache not a redirect       
         #print("The cache['div'] is: ", cache.get('div'), file=sys.stderr, flush=True)
@@ -176,6 +180,8 @@ def Convertn_Draw():
         print(traceback.format_exc(), file=sys.stderr, flush=True)
         trace_back_string =  traceback.format_exc()    
         cache.set('converted_file', trace_back_string)    
+    #if app.config['Debug']:    
+    #    print('debug: almost ready time: ', datetime.datetime.now(), flush=True)
     return render_template('index.html', 
             input_text_file=cache.get('input_file'), 
             output_text_file=cache.get('converted_file'),
