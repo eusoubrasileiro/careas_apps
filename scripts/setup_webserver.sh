@@ -51,6 +51,12 @@ cat ~/careas_apps/scripts/sites_nginx.conf >> /etc/nginx/sites-enabled/sites_ngi
 
 sudo systemctl restart nginx
 
-# namecheap dynamic dns
-# https://www.namecheap.com/support/knowledgebase/article.aspx/5/11/are-there-any-alternate-dynamic-dns-clients/
-# apt-get install ddclient
+# namecheap dynamic dns better allways on since ISP may not be reliable for home-internet service
+# https://www.namecheap.com/support/knowledgebase/article.aspx/583/11/how-do-i-configure-ddclient/
+# answered by ticket 
+wget https://raw.githubusercontent.com/icolwell/install_scripts/master/ddclient_install.bash
+bash ddclient_install.bash
+
+#Once done, please edit the config at /etc/ddclient/ddclient.conf and restart the DDClient via this command:
+sudo cp  ~/careas_apps/scripts/ddclient.conf  /etc/ddclient/
+sudo service ddclient restart
