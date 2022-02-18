@@ -1,21 +1,28 @@
+import json
 import sys, traceback, secrets
 import argparse
-import datetime
 
 from flask import (
     Flask, 
     Markup, 
     Response,
     request, 
-    redirect,
-    render_template    
+    jsonify
 )
-from poligonal.util import NotPairofCoordinatesError
 
+# Cross Origin Resource Sharing (CORS)
+# making cross-origin AJAX possible.
+# frontend in react node and backend flask cross-origin
+from flask_cors import CORS, cross_origin
+import numpy
+
+from poligonal.util import NotPairofCoordinatesError
 
 # server side session, storing data on server not on cookies 
 # https://github.com/pallets-eco/flask-caching
 from flask_caching import Cache
+import tempfile, os
+
 
 from poligonal.util import (
     readMemorial, 
@@ -26,178 +33,91 @@ from poligonal.util import (
 )
 
 from bokeh.plotting import figure
-from bokeh.embed import components
+from bokeh.embed import json_item
 from bokeh.models import Arrow, NormalHead
 
 app = Flask('careas-tools')
+# static files including html page
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 8*60*60 # 8 hours in seconds
+app.config['Debug'] = False
 app.config['SECRET_KEY'] = secrets.token_hex(16)
 # Flask-Cache package
-app.config['CACHE_DIR'] = '/tmp/careas_apps_cache/' 
-app.config['CACHE_TYPE'] = 'FileSystemCache' 
-# permissions/bug delays of as much as 16 seconds, fixed by
-# 1. cache folder set as `sudo mount -t tmpfs -o size=50m tmpfs /home/andre/careas_apps/cache/`
-# 2. setting this + chmod -r cache seams to 
-# app.config['CACHE_OPTIONS'] = { 'mode' : 777}
-# https://stackoverflow.com/q/70836021/1207193
 app.config['CACHE_THRESHOLD'] = 10000
-# static files
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 300
-app.config['Debug'] = False
+app.config['CACHE_DIR'] = os.path.join(tempfile.gettempdir(), "careas_apps") #  temporary directory
+app.config['CACHE_TYPE'] = 'FileSystemCache' 
 
 cache = Cache(app)
+CORS(app)
 
 def get_app():
     return app
 
-
-#### Javascript localSession more or less equivalent  
-#### recommended usage is Flask-Caching for a server-side cache
-#### since Flask.session is a client side cache with cookies
-#### very limitted since creating heavy/huge Cookies (back-forth communication) is not recommended 
-
-def load_default_values():
-    cache.set('converted_file', "Carregue seu arquivo de entrada")
-    cache.set('input_file', """-19°44'18''174 -44°17'41''703||
--19;44;;18''174 -44°17'45''410
-xxxx -19°44'16''507 -44°17'45''410
--19°44'16''507   -44°17'52''079
--19°44'18''280 -44°17'52''079
--19°44'18|280 -44°17'53''625
--19°44'20''015 -44°17'53''625
--19°44,20'zz015 -44°17'54@@984
--19°44'22''531 -44°17'54''984
--19°44'22''531  zz-44°18'09''003
--19°44xx30''662 -44°18'09''003
--19°44'30''662 -44°18'19''307
--19°44,,37''111 -44°18'19''307
-\zz-19°44'37''111 -44°17'41''703
--19°44'18''174 -44°17'41''703""")    
-    cache.set('scripts', '')
-    cache.set('div', '')   
-    cache.set('redirect', False) 
-    cache.set('input_format', 'scm')
-    cache.set('output_format', 'sigareas')
-    cache.set('input_radio_fmts', 
-        {'scm': 'checked', 
-        'gtmpro': ''})
-    cache.set('output_radio_fmts', 
-        {'sigareas': 'checked', 
-        'gtmpro': '',
-        'ddegree' : ''})       
-    cache.set('input_options',  # additional input options check boxes
-        {'rumos-v': 'checked'})
-    cache.set('rumos_v_tol', '0.5')
-
-def isLoaded():
-    """to check if page is already loaded (n cached)  
-    Used to avoid requests->route made even if page is not loaded
-    only on Browser Cache"""
-    return cache.get('div') != None # same xx is True 
-
-@app.route('/')
-def index():
-    #if app.config['Debug']:        
-    #    print('debug: entry time: ', datetime.datetime.now(), flush=True)        
-    # if empty cache means first time loaded the page
-    if (not isLoaded()) or (not cache.get('redirect')): # empty cache not a redirect       
-        #print("The cache['div'] is: ", cache.get('div'), file=sys.stderr, flush=True)
-        load_default_values() # initiate the current state of the Page
-        # when the tab, browser is closed the cache is deleted     
-    cache.set('redirect', False)    
-    return Convertn_Draw()
+#### FrontEnd React Javascript where state area saved by react
 
 
-@app.route('/download', methods=['GET', 'POST'])
-def downloadFile ():
-    if isLoaded():        
-        return Response(
-            cache.get('converted_file'),
-            mimetype="text/csv",
-            headers={"Content-disposition": "attachment; filename=SIGAREAS.txt",
-                      "Cache-Control" : "no-store, max-age=0"  }) # this must NEVER be cached
-
-
-# to avoid f5 form resubmission
-# flask solution Flask-Caching with redirect
 @app.route('/convert', methods=['POST'])
+@cross_origin(origin='*')
 def convert():
-    if request.method == 'POST' and isLoaded():
-        cache.set('input_file', request.form['input_text'])     
-        # save input radio buttons format state
-        input_radio_fmts = dict.fromkeys(cache.get('input_radio_fmts')) # clean checked state all buttons
-        input_radio_fmts[ request.form['input_format'] ] = 'checked'
-        #print(request.form['input_format'], file=sys.stderr, flush=True)
-        cache.set('input_radio_fmts', input_radio_fmts) 
-        # set input_format variable        
-        cache.set('input_format', request.form['input_format'])        
-        # save output radio buttons format state 
-        output_radio_fmts = dict.fromkeys(cache.get('output_radio_fmts')) # clean checked state all buttons
-        output_radio_fmts[ request.form['output_format'] ] = 'checked'
-        cache.set('output_radio_fmts', output_radio_fmts) 
-        # set output_format variable        
-        cache.set('output_format', request.form['output_format'])   
-        # save input options checkbox states
-        input_options = dict.fromkeys(cache.get('input_options')) # clean checked state all boxes
-        for option in input_options:
-            input_options[option] = "checked" if request.form.get(option) else ""
-            #print(option, request.form.get(option), file=sys.stderr, flush=True)       
-        cache.set('input_options', input_options)    
-        cache.set('rumos_v_tol', request.form['rumos_v_tol'])              
-        # signal comming from redirect
-        cache.set('redirect', True)   
-    # avoid form resubmission with F5        
-    return redirect('/')
+    converted_file = None
+    succeed = True
+    if request.method == 'POST':
+        try:
+            #print(request.form['input_text'], file=sys.stderr, flush=True)
+            print(request.form['input_format'], file=sys.stderr, flush=True)
+            print(request.form['output_format'], file=sys.stderr, flush=True)
+            print(request.form['rumos_v_tol'], file=sys.stderr, flush=True)
+            rumos_v = False
+            if 'rumos-v' in request.form.keys():            
+                rumos_v = True 
+                print(request.form['rumos-v'], file=sys.stderr, flush=True)
+            # convert and plot
+            input_file_rd = readMemorial(request.form['input_text'], fmt=request.form['input_format'])
+            # for plotting memorial and rumos nsew adjust
+            points = readMemorial(request.form['input_text'], fmt=request.form['input_format'],
+                decimal=True)
+            points_verd = None
+            if rumos_v:            
+                #input_file_rd = forceverdPoligonal(points, tolerancem=float(cache.get('rumos_v_tol')), debug=True)
+                input_file_rd = forceverdPoligonal(points, tolerancem=float(request.form['rumos_v_tol']), debug=True)
+                points_verd = input_file_rd            
+            converted_file = formatMemorial(input_file_rd, fmt=request.form['output_format'])
+            # server-side cache data so /plot can work
+            cache.set('points_verd', points_verd) 
+            cache.set('points', points) 
+        except forceverdFailed:
+            # uncheck rumos-v and run again # show a message?
+            converted_file=("Não é possivel ajustar para rumos verdadeiros\n"
+                           "(rumos-v) com esse valor de tolerância (m).\n"
+                           "Modifique a tolerância (metros) em Mais opções.\n")  
+            succeed = False 
+        except NotPairofCoordinatesError:
+            converted_file =("Falta um membro de uma coordenada\n"
+                            "(latitude ou longitude)\n")  
+            succeed = False
+        except Exception: 
+            print(traceback.format_exc(), file=sys.stderr, flush=True)
+            trace_back_string =  traceback.format_exc()    
+            converted_file = trace_back_string
+            succeed = False
+        print(converted_file, file=sys.stderr, flush=True)
+        result = jsonify({'status' : succeed,
+                          'data' : converted_file})
+    return result
 
 
-def Convertn_Draw():
-    """executes 'de facto' file convertion using poligonal package
-    also draw the poligon with the bokeh plot"""
-    try:
-        input_file_rd = readMemorial(cache.get('input_file'), fmt=cache.get('input_format'))
-        # for plotting memorial and rumos nsew adjust
-        points = readMemorial(cache.get('input_file'), fmt=cache.get('input_format'),
-            decimal=True)
-        #print(cache.get('output_format'), file=sys.stderr, flush=True)
-        points_verd = None
-        if cache.get('input_options')['rumos-v'] == 'checked':            
-            input_file_rd = forceverdPoligonal(points, tolerancem=float(cache.get('rumos_v_tol')), debug=True)
-            points_verd = input_file_rd
-        # output file formatted        
-        cache.set('converted_file', formatMemorial(input_file_rd, fmt=cache.get('output_format')))  
-        #### for plotting memorial original also plot converted rumos adjusted
-        scripts, div = bokeh_memorial_draw(points, points_verd)
-        cache.set('scripts', Markup(scripts))
-        cache.set('div', Markup(div))
-    except forceverdFailed:
-        # uncheck rumos-v and run again # show a message?
-        cache.set('converted_file', "Não é possivel ajustar para rumos verdadeiros\n"
-                                    "(rumos-v) com esse valor de tolerância (m).\n"
-                                    "Modifique a tolerância (metros) em Mais opções.\n")   
-    except NotPairofCoordinatesError:
-        cache.set('converted_file', "Falta um membro de uma coordenada\n"
-                                    "(latitude ou longitude)\n")  
-    except Exception: 
-        print(traceback.format_exc(), file=sys.stderr, flush=True)
-        trace_back_string =  traceback.format_exc()    
-        cache.set('converted_file', trace_back_string)    
-    #if app.config['Debug']:    
-    #    print('debug: almost ready time: ', datetime.datetime.now(), flush=True)
-    return render_template('index.html', 
-            input_text_file=cache.get('input_file'), 
-            output_text_file=cache.get('converted_file'),
-            bokeh_head_plot=cache.get('scripts'), 
-            bokeh_body_plot=cache.get('div'), 
-            input_radio_fmts=cache.get('input_radio_fmts'),
-            output_radio_fmts=cache.get('output_radio_fmts'),
-            input_options=cache.get('input_options'),
-            rumos_v_tol=cache.get('rumos_v_tol')
-        )  
+@app.route('/plot', methods=['POST'])
+@cross_origin(origin='*')
+def plot():
+    # for plotting memorial original also plot converted rumos adjusted
+    if isinstance(cache.get('points'), numpy.ndarray): # must be cached to plot
+        return bokeh_memorial_draw(cache.get('points'), cache.get('points_verd'))
+    return None
 
 
 def bokeh_memorial_draw(points, points_verd=None):
     """draw with bokeh the points passed as circles
     connected with arrows (according to the their order)
-    * returns: div html and script tag for embedding """
+    * returns: json data for BokehJS to plot """
     x, y = points[:, 1], points[:, 0]
 
     TOOLTIPS = [ # allowed hover tooltips
@@ -229,8 +149,8 @@ def bokeh_memorial_draw(points, points_verd=None):
     p.legend.background_fill_alpha = 0.1
     p.legend.location = "top_left"
     p.legend.background_fill_color = "gray"
-
-    return components(p) # returns scripts, div
+    item_text = json.dumps(json_item(p))
+    return item_text # json data for BokehJS to plot in react
 
 
 if __name__ == "__main__":
