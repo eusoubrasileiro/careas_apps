@@ -4,8 +4,6 @@ import argparse
 
 from flask import (
     Flask, 
-    Markup, 
-    Response,
     request, 
     jsonify
 )
