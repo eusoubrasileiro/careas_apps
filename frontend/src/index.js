@@ -56,13 +56,17 @@ class App extends Component {
         body: data        
       }
     ).then(response => response.json().then(data => {
-          this.outputarea.current.setState({'textarea':data['data']});
+          this.outputarea.current.setState({'textarea': data['data']});
           if(data['status']) // if succeeded
             this.PlotGraph();   
           else // if did not put back the previous plot
             this.plotarea.current.setLoading(false);
       }) 
-    )   
+    )
+    .catch((error) => {
+      this.outputarea.current.setState({'textarea': 
+      "Error connecting to backend server - error: "+toString(error)});
+    });   
   }
 
   PlotGraph(){
@@ -77,7 +81,11 @@ class App extends Component {
         Bokeh.embed.embed_item(data, "bokeh_plot");            
         this.plotarea.current.setLoading(false);
       }) 
-    )      
+    )
+    .catch((error) => {
+      this.outputarea.current.setState({'textarea': 
+      "Error connecting to backend server - error: "+toString(error)});
+    });         
   }
 
   // after App rendered 
