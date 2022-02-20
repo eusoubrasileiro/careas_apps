@@ -11,7 +11,7 @@ from flask import (
 # Cross Origin Resource Sharing (CORS)
 # making cross-origin AJAX possible.
 # frontend in react node and backend flask cross-origin
-from flask_cors import CORS, cross_origin
+#from flask_cors import CORS, cross_origin
 import numpy
 
 from poligonal.util import NotPairofCoordinatesError
@@ -45,7 +45,7 @@ app.config['CACHE_DIR'] = os.path.join(tempfile.gettempdir(), "careas_apps") #  
 app.config['CACHE_TYPE'] = 'FileSystemCache' 
 
 cache = Cache(app)
-CORS(app)
+#CORS(app)
 
 def get_app():
     return app
@@ -54,7 +54,7 @@ def get_app():
 
 
 @app.route('/flask/convert', methods=['POST'])
-@cross_origin(origin='*')
+#@cross_origin(origin='*')
 def convert():
     converted_file = None
     succeed = True
@@ -104,7 +104,7 @@ def convert():
 
 
 @app.route('/flask/plot', methods=['POST'])
-@cross_origin(origin='*')
+#@cross_origin(origin='*')
 def plot():
     # for plotting memorial original also plot converted rumos adjusted
     if isinstance(cache.get('points'), numpy.ndarray): # must be cached to plot
