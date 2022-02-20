@@ -32,7 +32,7 @@ class OutputArea extends Component {
   constructor(props) {
     super(props);
     this.state = { // we save the state of the child 'we care' here
-      textarea: 'output text comes here'
+      textarea: 'carregando...'
     };
   }  
   
