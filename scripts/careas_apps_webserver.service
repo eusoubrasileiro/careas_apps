@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=andre
 Group=www-data
-WorkingDirectory=/home/andre/careas_apps
+WorkingDirectory=/home/andre/careas_apps/backend
 ExecStart=/usr/bin/authbind /home/andre/careas_apps/pythonvenv/bin/gunicorn -w 5 --bind 0.0.0.0:8000 main:app
 
 [Install]
