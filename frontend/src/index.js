@@ -49,7 +49,7 @@ class App extends Component {
     for (const pair of new FormData(this.formref.current)) {
         data.append(pair[0], pair[1]);
     }
-    fetch('http://localhost:5000/convert', 
+    fetch('/flask/convert', 
       {
         method: 'post',
         body: data        
@@ -63,7 +63,7 @@ class App extends Component {
   }
 
   PlotGraph(){
-    fetch('http://localhost:5000/plot', 
+    fetch('/flask/plot', 
       {
         method: 'post',
         body: ''  

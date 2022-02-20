@@ -53,7 +53,7 @@ def get_app():
 #### FrontEnd React Javascript where state area saved by react
 
 
-@app.route('/convert', methods=['POST'])
+@app.route('/flask/convert', methods=['POST'])
 @cross_origin(origin='*')
 def convert():
     converted_file = None
@@ -103,7 +103,7 @@ def convert():
     return result
 
 
-@app.route('/plot', methods=['POST'])
+@app.route('/flask/plot', methods=['POST'])
 @cross_origin(origin='*')
 def plot():
     # for plotting memorial original also plot converted rumos adjusted

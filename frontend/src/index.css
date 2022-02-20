@@ -26,7 +26,7 @@ textarea {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  /* needed to force the height due col?  */
   height: 100%;
 }
 
