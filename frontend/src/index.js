@@ -49,6 +49,7 @@ class App extends Component {
     for (const pair of new FormData(this.formref.current)) {
         data.append(pair[0], pair[1]);
     }
+    this.plotarea.current.setLoading(true); // set loading spinner
     fetch('/flask/convert', 
       {
         method: 'post',
@@ -58,6 +59,8 @@ class App extends Component {
           this.outputarea.current.setState({'textarea':data['data']});
           if(data['status']) // if succeeded
             this.PlotGraph();   
+          else // if did not put back the previous plot
+            this.plotarea.current.setLoading(false);
       }) 
     )   
   }
@@ -71,7 +74,6 @@ class App extends Component {
     ).then(response => response.json().then(data => {         
         const myNode = document.getElementById("bokeh_plot");
         myNode.replaceChildren(); // clean previous plot
-        this.plotarea.current.setLoading(true);
         Bokeh.embed.embed_item(data, "bokeh_plot");            
         this.plotarea.current.setLoading(false);
       }) 
