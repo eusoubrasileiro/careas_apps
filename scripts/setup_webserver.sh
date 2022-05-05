@@ -1,4 +1,5 @@
 #!/bin/bash
+sudo apt-get update # need to get new mirrors first 
 sudo apt-get install python3.8-venv authbind -y
 
 cd ~/careas_apps
@@ -27,11 +28,11 @@ fi
 # to allow run on port 8000 (not 80 to allow nginx control) 
 # HTTPS and forward will be dealt by nginx
 # so passing access to specified user
-sudo touch /etc/authbind/byport/5000
-sudo chmod 500 /etc/authbind/byport/5000
-sudo chown andre /etc/authbind/byport/5000
+sudo touch /etc/authbind/byport/8000
+sudo chmod 500 /etc/authbind/byport/8000
+sudo chown andre /etc/authbind/byport/8000
 
-#/usr/bin/authbind /home/andre/careas_apps/pythonvenv/bin/gunicorn -w 4 --bind 0.0.0.0:5000 main:app
+#/usr/bin/authbind /home/andre/careas_apps/pythonvenv/bin/gunicorn -w 4 --bind 0.0.0.0:8000 main:app
 # service still runs on my current user
 sudo systemctl stop careas_apps_webserver
 sudo cp ~/careas_apps/scripts/careas_apps_webserver.service /etc/systemd/system/
