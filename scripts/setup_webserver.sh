@@ -37,12 +37,6 @@ sudo chown andre /etc/authbind/byport/8000
 sudo systemctl stop careas_apps_webserver
 sudo cp ~/careas_apps/scripts/careas_apps_webserver.service /etc/systemd/system/
 sudo chmod 664 /etc/systemd/system/careas_apps_webserver.service
-sudo systemctl daemon-reload
-sudo systemctl enable careas_apps_webserver
-sudo systemctl start careas_apps_webserver
-
-sudo cp ~/careas_apps/scripts/careas_apps_react.conf /etc/nginx/sites-enabled/
-sudo systemctl restart nginx
 
 # namecheap dynamic dns better allways on since ISP may not be reliable for home-internet service
 # https://www.namecheap.com/support/knowledgebase/article.aspx/583/11/how-do-i-configure-ddclient/
@@ -53,3 +47,28 @@ bash ddclient_install.bash
 #Once done, please edit the config at /etc/ddclient/ddclient.conf and restart the DDClient via this command:
 sudo cp  ~/careas_apps/scripts/ddclient.conf  /etc/ddclient/
 sudo service ddclient restart
+
+# start nginx first 
+sudo cp ~/careas_apps/scripts/careas_apps_react.conf /etc/nginx/sites-enabled/
+sudo systemctl restart nginx
+# start then careas-apps backend flask
+sudo systemctl daemon-reload
+sudo systemctl enable careas_apps_webserver
+sudo systemctl start careas_apps_webserver
+
+# MUST copy react-javascript BUILT bundle
+# from /home/andre/careas_apps/frontend/build 
+# from windows or any other place it was built to same folder ...
+
+# change all references /etc/nginx/nginx.conf /etc/nginx/sites-enabled/* to 
+# /tmp that is ramdisks tmpfs file system with access to all users 
+
+# finally set read-only on disk /etc/fstab
+UUID=886120f4-2e32-45b2-b59b-4f5928f37137 / ext4 ro 0 0
+# reboot 
+
+# want to update anything do 
+# sudo mount -o remount,rw /dev/mmcblk0p1
+
+# TODO - FUTURE
+# add usb or create partition with fdisk to set logs
