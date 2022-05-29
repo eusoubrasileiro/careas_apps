@@ -44,7 +44,7 @@
     pip:
       requirements: "{{ careas_apps_dir }}/requeriments.txt"
       virtualenv: "{{ careas_apps_dir }}/pyvenv"
-      virtualenv_command: /usr/bin/python3.8 -m pyvenv
+      virtualenv_command: /usr/bin/python3.8 -m venv
     become: true
 
   - name: Install careas-pip on virtual-env
@@ -52,7 +52,7 @@
       name: git+https://github.com/eusoubrasileiro/aidbag.git#subdirectory=anm/careas-pip
       virtualenv: "{{ careas_apps_dir }}/pyvenv"
       virtualenv_site_packages: true
-      virtualenv_command: /usr/bin/python3.8 -m pyvenv
+      virtualenv_command: /usr/bin/python3.8 -m venv
     become: true
 
 # copy react-javascript BUILT bundle to frontend
