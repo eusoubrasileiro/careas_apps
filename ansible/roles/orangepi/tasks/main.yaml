@@ -30,19 +30,19 @@
       - python3-certbot-nginx
     become: true
 
-  - name: Copy files
+  - name: Copy folder backend and frontend/build.zip
     copy:
       src: "{{ item }}"
       dest: "{{ careas_apps_dir }}"
       mode: 0777
     loop:
-      - "{{ playbook_dir }}/../backend/"
+      - "{{ playbook_dir }}/../backend"
       - "{{ playbook_dir }}/../frontend/build.zip"
     become: true
 
   - name: Install virtual-env and backend requirements
     pip:
-      requirements: "{{ careas_apps_dir }}/requeriments.txt"
+      requirements: "{{ careas_apps_dir }}/backend/requeriments.txt"
       virtualenv: "{{ careas_apps_dir }}/pyvenv"
       virtualenv_command: /usr/bin/python3.8 -m venv
     become: true
@@ -57,17 +57,11 @@
 
 # copy react-javascript BUILT bundle to frontend
 # from windows or any other place it was built to same folder ...
-  - name: Move files to backend and frontend dirs
+  - name: Unpack build, chown dir, tmp/nginx 
     shell:
-      cmd: |
-        mkdir -p backend
-        mv requeriments.txt main.py backend
-        mkdir -p frontend
-        mv build.zip frontend
-        cd frontend
-        unzip build.zip
-        cd ..
-        chown -R andre:andre *        
+      cmd: |        
+        mkdir -p frontend && unzip build.zip -d frontend
+        chown -R andre:andre ../careas_apps/*        
         mkdir -p /tmp/log/nginx
       chdir: "{{ careas_apps_dir }}"
     become: true    
