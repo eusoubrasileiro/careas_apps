@@ -1,0 +1,4 @@
+all:
+  hosts:
+    orangepi:
+      ansible_executable: /bin/bash      
