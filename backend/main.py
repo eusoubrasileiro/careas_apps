@@ -45,16 +45,12 @@ app.config['CACHE_DIR'] = os.path.join(tempfile.gettempdir(), "careas_apps") #  
 app.config['CACHE_TYPE'] = 'FileSystemCache' 
 
 cache = Cache(app)
-#CORS(app)
 
 def get_app():
     return app
 
 #### FrontEnd React Javascript where state area saved by react
-
-
 @app.route('/flask/convert', methods=['POST'])
-#@cross_origin(origin='*')
 def convert():
     converted_file = None
     succeed = True
@@ -104,12 +100,9 @@ def convert():
 
 
 @app.route('/flask/plot', methods=['POST'])
-#@cross_origin(origin='*')
 def plot():
     # for plotting memorial original also plot converted rumos adjusted
-    if isinstance(cache.get('points'), numpy.ndarray): # must be cached to plot
-        return bokeh_memorial_draw(cache.get('points'), cache.get('points_verd'))
-    return None
+    return bokeh_memorial_draw(cache.get('points'), cache.get('points_verd'))    
 
 
 def bokeh_memorial_draw(points, points_verd=None):
