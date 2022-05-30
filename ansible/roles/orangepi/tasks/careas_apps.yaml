@@ -1,0 +1,107 @@
+---
+- name: Create my user
+  user:
+    name: "{{ user.name }}"
+    state: present
+    shell: /bin/bash
+    groups: "sudo,adm"
+    password: "{{ user.password | password_hash('sha512') }}"
+    create_home: true
+
+- name: Update apt packages
+  apt:
+    update_cache: true
+
+- name: Install needed packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - git
+    - dnsmasq
+    - python3.8-venv
+    - python3-pip
+    - authbind
+    - certbot
+    - python3-certbot-nginx
+
+- name: Copy folder backend and frontend/build.zip
+  copy:
+    src: "{{ item }}"
+    dest: "{{ careas_apps_dir }}"
+    mode: 0777
+  loop:
+    - "{{ playbook_dir }}/../backend"
+    - "{{ playbook_dir }}/../frontend/build.zip"
+
+- name: Install virtual-env and backend requirements
+  pip:
+    requirements: "{{ careas_apps_dir }}/backend/requeriments.txt"
+    virtualenv: "{{ careas_apps_dir }}/pyvenv"
+    virtualenv_command: /usr/bin/python3.8 -m venv
+
+- name: Install careas-pip on virtual-env
+  pip:
+    name: git+https://github.com/eusoubrasileiro/aidbag.git#subdirectory=anm/careas-pip
+    virtualenv: "{{ careas_apps_dir }}/pyvenv"
+    virtualenv_site_packages: true
+    virtualenv_command: /usr/bin/python3.8 -m venv
+
+# copy react-javascript BUILT bundle to frontend
+# from windows or any other place it was built to same folder ...
+- name: Unpack build, chown dir, tmp/nginx 
+  shell:
+    cmd: |        
+      mkdir -p frontend && unzip build.zip -d frontend
+      chown -R andre:andre ../careas_apps/*        
+      mkdir -p /tmp/log/nginx
+    chdir: "{{ careas_apps_dir }}"
+
+# careas_apps running by user andre (better control not root)
+# to allow run on port 8000 (not 80 to allow nginx control)
+# HTTPS and forward will be dealt by nginx
+# so passing access to specified user
+- name: Authbind authorize user andre port 8000
+  shell: |
+    touch /etc/authbind/byport/8000
+    chmod 500 /etc/authbind/byport/8000
+    chown andre /etc/authbind/byport/8000
+
+- name: Download & Install namecheap ddclient service
+  shell:
+    cmd: |
+      wget https://raw.githubusercontent.com/icolwell/install_scripts/master/ddclient_install.bash
+      bash ddclient_install.bash
+    chdir: "{{ careas_apps_dir }}"
+
+# namecheap dynamic dns better allways on
+# since ISP is not reliable for home-internet service
+# https://www.namecheap.com/support/knowledgebase/article.aspx/583/11/how-do-i-configure-ddclient/
+# answered by ticket
+- name: Install ddclient.conf
+  template:
+    src: etc/ddclient.conf
+    dest: /etc/ddclient.conf
+
+- name: Install backend .service
+  template:
+    src: etc/systemd/system/careas_apps_backend.service
+    dest: /etc/systemd/system/
+
+- name: Install nginx sites-enabled
+  template:
+    src: etc/nginx/sites-enabled/careas_apps_react.conf
+    dest: /etc/nginx/sites-enabled
+
+- name: Enable and start flask backend and nginx services
+  systemd:
+    name: "{{ item }}"
+    enabled: true
+    masked: false
+    state: restarted
+    daemon_reload: true
+    force: true
+  loop:
+    - careas_apps_backend
+    - nginx
+    - ddclient
