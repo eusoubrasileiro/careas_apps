@@ -18,12 +18,13 @@
     state: present
   loop:
     - git
-    - dnsmasq
     - python3.8-venv
     - python3-pip
     - authbind
     - certbot
     - python3-certbot-nginx
+    - netplan.io
+    - htop
 
 - name: Copy folder backend and frontend/build.zip
   copy:
