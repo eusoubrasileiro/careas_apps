@@ -68,22 +68,6 @@
     chmod 500 /etc/authbind/byport/8000
     chown andre /etc/authbind/byport/8000
 
-- name: Download & Install namecheap ddclient service
-  shell:
-    cmd: |
-      wget https://raw.githubusercontent.com/icolwell/install_scripts/master/ddclient_install.bash
-      bash ddclient_install.bash
-    chdir: "{{ careas_apps_dir }}"
-
-# namecheap dynamic dns better allways on
-# since ISP is not reliable for home-internet service
-# https://www.namecheap.com/support/knowledgebase/article.aspx/583/11/how-do-i-configure-ddclient/
-# answered by ticket
-- name: Install ddclient.conf
-  template:
-    src: etc/ddclient.conf
-    dest: /etc/ddclient.conf
-
 - name: Install backend .service
   template:
     src: etc/systemd/system/careas_apps_backend.service
