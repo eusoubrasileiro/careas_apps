@@ -1,3 +1,11 @@
 ---
-- include_tasks: careas_apps.yaml
-- include_tasks: readonly.yaml
+
+- name: configure careas_apps webserver
+  include_tasks: careas_apps.yaml
+  tags:
+    - always
+
+- name: set-up readonly overlay mount 
+  include_tasks: readonly.yaml
+  tags:
+    - always
