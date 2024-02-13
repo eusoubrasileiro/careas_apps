@@ -1,12 +1,12 @@
 [Unit]
-Description=Gunicorn serves careas_apps website at port 8000 to nginx https/http etc.
+Description=Gunicorn serves careas_apps website at port 8000 
 After=network.target
 
 [Service]
 User=andre
 Group=www-data
 WorkingDirectory=/home/andre/careas_apps/backend
-ExecStart=/usr/bin/authbind /home/andre/careas_apps/pyvenv/bin/gunicorn -w 5 --bind 0.0.0.0:8000 main:app
+ExecStart=/usr/bin/authbind /home/andre/careas_apps/pyvenv/bin/gunicorn -w 5 main:app
 
 [Install]
 WantedBy=multi-user.target

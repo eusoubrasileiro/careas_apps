@@ -8,7 +8,7 @@
 - name: set-up readonly overlay mount 
   include_tasks: readonly.yaml
   tags:
-    - always
+    - never
 
 - name: mount set-up network storage
   include_tasks: network_storage.yaml
