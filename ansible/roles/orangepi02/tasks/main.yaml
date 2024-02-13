@@ -10,7 +10,7 @@
   tags:
     - always
 
-  - name: mount set-up network storage 
+- name: mount set-up network storage
   include_tasks: network_storage.yaml
   tags:
     - always
