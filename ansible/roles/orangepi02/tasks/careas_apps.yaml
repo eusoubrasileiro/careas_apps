@@ -21,8 +21,6 @@
     - python3.8-venv
     - python3-pip
     - authbind
-    - certbot
-    - python3-certbot-nginx
     - netplan.io
     - htop
 
@@ -50,17 +48,16 @@
 
 # copy react-javascript BUILT bundle to frontend
 # from windows or any other place it was built to same folder ...
-- name: Unpack build, chown dir, tmp/nginx 
+- name: Unpack build, chown dir, 
   shell:
     cmd: |        
       mkdir -p frontend && unzip build.zip -d frontend
       chown -R andre:andre ../careas_apps/*        
-      mkdir -p /tmp/log/nginx
     chdir: "{{ careas_apps_dir }}"
 
 # careas_apps running by user andre (better control not root)
-# to allow run on port 8000 (not 80 to allow nginx control)
-# HTTPS and forward will be dealt by nginx
+# to allow run on port 8000 
+# HTTPS and forward will be dealt by https://loophole.cloud/
 # so passing access to specified user
 - name: Authbind authorize user andre port 8000
   shell: |
@@ -73,12 +70,8 @@
     src: etc/systemd/system/careas_apps_backend.service
     dest: /etc/systemd/system/
 
-- name: Install nginx sites-enabled
-  template:
-    src: etc/nginx/sites-enabled/careas_apps_react.conf
-    dest: /etc/nginx/sites-enabled
 
-- name: Enable and start flask backend and nginx services
+- name: Enable and start flask backend services
   systemd:
     name: "{{ item }}"
     enabled: true
@@ -88,5 +81,3 @@
     force: true
   loop:
     - careas_apps_backend
-    - nginx
-    - ddclient
