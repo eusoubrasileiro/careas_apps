@@ -5,3 +5,4 @@ pythonvenv/
 cache/
 tests/
 aidbag/
+nginx-1.18.0/
