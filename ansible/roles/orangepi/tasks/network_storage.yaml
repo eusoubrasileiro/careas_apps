@@ -1,0 +1,44 @@
+- name: Install needed packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - samba
+    - ntfs-3g
+    - fuse
+    # https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nfs-mount-on-ubuntu-20-04      
+    - nfs-kernel-server
+
+
+# fstab to add
+# /dev/sda1 /mnt/motion ext4 defaults 0 0
+# UUID=5D2B1A0447C0214A /mnt/shared ntfs-3g uid=andre,gid=andre,umask=0022 0 2
+- name: Mount Motion Ext Usb HDD SDA1 400 GB for MOTION NVR
+  ansible.posix.mount:
+    path: /mnt/motion
+    src: /dev/sda1
+    fstype: ext4
+    opts: "defaults"
+    state: mounted
+  become: true
+  tags:
+    - mount
+
+# since opts 'user, umask=0000' above is not working
+- name: chown motion_storage folder since mount did not work
+  shell: "chown -R andre:andre /mnt/motion"
+  become: true
+  tags:
+    - mount
+
+
+
+# add user/passwd to samba share, workgroup is the domain (default)
+# sudo smbpasswd -a andre
+# append to /etc/samba/smb.conf
+# [shared]
+# path = /mnt/shared
+# valid users = andre
+# read only = no
+
+

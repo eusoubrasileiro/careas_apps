@@ -9,3 +9,8 @@
   include_tasks: readonly.yaml
   tags:
     - always
+
+  - name: mount set-up network storage 
+  include_tasks: network_storage.yaml
+  tags:
+    - always
