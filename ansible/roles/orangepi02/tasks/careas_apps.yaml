@@ -19,10 +19,11 @@
   loop:
     - git
     - python3.8-venv
-    - python3-pip
-    - authbind
+    - python3-pip    
     - netplan.io
     - htop
+    # nginx forward requests from frontend to backend
+    - nginx 
 
 - name: Copy folder backend and frontend/build.zip
   copy:
@@ -52,7 +53,8 @@
   shell:
     cmd: |        
       mkdir -p frontend && unzip build.zip -d frontend
-      chown -R andre:andre ../careas_apps/*        
+      chown -R andre:andre ../careas_apps/*      
+      mkdir -p /tmp/log/nginx  
     chdir: "{{ careas_apps_dir }}"
 
 # careas_apps running by user andre (better control not root)
@@ -70,6 +72,10 @@
     src: etc/systemd/system/careas_apps_backend.service
     dest: /etc/systemd/system/
 
+- name: Install nginx sites-enabled
+  template:
+    src: etc/nginx/sites-enabled/careas_apps_react.conf
+    dest: /etc/nginx/sites-enabled
 
 - name: Enable and start flask backend services
   systemd:
@@ -81,3 +87,4 @@
     force: true
   loop:
     - careas_apps_backend
+    - nginx 
