@@ -3,12 +3,11 @@
     name: "{{ item }}"
     state: present
   loop:
-    - samba
     - ntfs-3g
-    - fuse
-    # https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nfs-mount-on-ubuntu-20-04      
+    - fuse    
     - nfs-kernel-server
-
+  tags:    
+    - nfs 
 
 # fstab to add
 # /dev/sda1 /mnt/motion ext4 defaults 0 0
@@ -18,19 +17,40 @@
     path: /mnt/motion
     src: /dev/sda1
     fstype: ext4
-    opts: "defaults"
+    opts: defaults
     state: mounted
   become: true
-  tags:
-    - mount
+  tags:    
+    - nfs 
 
-# since opts 'user, umask=0000' above is not working
-- name: chown motion_storage folder since mount did not work
-  shell: "chown -R andre:andre /mnt/motion"
+# ntfs-3g doesn't support change ownership or whatever since it comes from windows
+- name: Mount /mnt/shared with options
+  ansible.posix.mount:
+    path: /mnt/shared
+    src: UUID=5D2B1A0447C0214A
+    fstype: ntfs-3g
+    state: mounted
   become: true
-  tags:
-    - mount
+  tags:    
+    - nfs
 
+- name: Configure NFS exports
+  become: yes
+  lineinfile:
+    path: /etc/exports
+    line: |
+      /mnt/shared *(rw,sync,no_root_squash)
+      /mnt/motion *(rw,sync)
+    insertafter: EOF
+    state: present
+  tags:    
+    - nfs
+
+- name: restart nfs server
+  become: yes
+  service:
+    name: nfs-server
+    state: restarted
 
 
 # add user/passwd to samba share, workgroup is the domain (default)

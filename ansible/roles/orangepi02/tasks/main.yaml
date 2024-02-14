@@ -8,9 +8,40 @@
 - name: set-up readonly overlay mount 
   include_tasks: readonly.yaml
   tags:
-    - never
+    - always
+    - ro_overlay
 
 - name: mount set-up network storage
   include_tasks: network_storage.yaml
   tags:
     - always
+
+- name: install loophole to tunnel my local webserver to public web
+  include_tasks: loophole.yaml
+  tags:
+    - always
+
+- name: Enable loophole but don't start it (need to login first in browser)
+  systemd:
+    name: "{{ item }}"
+    enabled: true
+    masked: false
+    state: restarted
+    daemon_reload: true
+    force: true
+  loop:
+    - loophole
+
+- name: Enable and start flask backend services
+  systemd:
+    name: "{{ item }}"
+    enabled: true
+    masked: false
+    state: restarted
+    daemon_reload: true
+    force: true
+  loop:
+    - careas_apps_backend
+    - nginx 
+  tags:
+    - services

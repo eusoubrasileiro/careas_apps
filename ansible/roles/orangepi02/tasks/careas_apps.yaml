@@ -67,24 +67,19 @@
     chmod 500 /etc/authbind/byport/8000
     chown andre /etc/authbind/byport/8000
 
-- name: Install backend .service
+- name: Install *.service files
   template:
-    src: etc/systemd/system/careas_apps_backend.service
-    dest: /etc/systemd/system/
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item | basename }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_fileglob:
+    - /templates/etc/systemd/system/*.service
 
 - name: Install nginx sites-enabled
   template:
     src: etc/nginx/sites-enabled/careas_apps_react.conf
     dest: /etc/nginx/sites-enabled
 
-- name: Enable and start flask backend services
-  systemd:
-    name: "{{ item }}"
-    enabled: true
-    masked: false
-    state: restarted
-    daemon_reload: true
-    force: true
-  loop:
-    - careas_apps_backend
-    - nginx 
+

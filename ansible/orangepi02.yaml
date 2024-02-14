@@ -1,5 +1,5 @@
 ---
-- name: Install careas_apps site and dnsmasq dns/dhcp server
+- name: Install careas_apps site (w. loophole tunnel) and networkshare 
   # must be set on /etc/hosts or any other dns server to its ip
   hosts: orangepi02
   roles:

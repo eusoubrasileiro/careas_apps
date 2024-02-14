@@ -1,20 +1,11 @@
 ---
 
-- name: Install overlay .service
-  template:
-    src: etc/systemd/system/ro_overlay.service
-    dest: /etc/systemd/system/
-  tags:
-    - ro_overlay
-
 # - name: replacing fstab by overlay mount on var
 - name: Install read only overlay mount script ro_overlay.sh 
   template:
     src: ro_overlay.sh
     dest: /usr/bin/
     mode: 0700
-  tags:
-    - ro_overlay
 
 - name: Enable but dont start overlay mount .service
   systemd:
@@ -26,5 +17,3 @@
     force: true
   loop:
     - ro_overlay 
-  tags:
-    - ro_overlay

@@ -1,0 +1,41 @@
+---
+
+- name: Download loophole-cli tarball
+  ansible.builtin.get_url:
+    url: https://github.com/loophole/cli/releases/download/1.0.0-beta.15/loophole-cli_1.0.0-beta.15_linux_arm64.tar.gz
+    dest: /home/andre/loophole-cli.tar.gz
+  become: yes
+  become_user: andre
+  tags:
+    - loophole 
+
+- name: Extract loophole-cli
+  ansible.builtin.unarchive:
+    src: /home/andre/loophole-cli.tar.gz
+    dest: /home/andre
+    remote_src: yes
+  become: yes
+  become_user: andre
+  tags:
+    - loophole 
+
+- name: Rename loophole* directory to loophole
+  ansible.builtin.shell:
+    cmd: mv /home/andre/loophole-cli_* /home/andre/loopholecli
+  args:
+    chdir: /home/andre
+  become: yes
+  become_user: andre
+  tags:
+    - loophole
+
+# no matter what port is available by my ISP 
+# loophole will create a tunnel from here to https://careas.loophole.site/ or 
+# whatever other -domain careas closer to this is available
+
+# to log-in before start service
+# /home/andre/loophole account login 
+# log-in using the browser 
+# then start service systemctl start loophole.service
+# that will start the tunnel like bellow
+# ./loophole http 80 --hostname careas
