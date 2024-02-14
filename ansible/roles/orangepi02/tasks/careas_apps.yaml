@@ -67,16 +67,6 @@
     chmod 500 /etc/authbind/byport/8000
     chown andre /etc/authbind/byport/8000
 
-- name: Install *.service files
-  template:
-    src: "{{ item }}"
-    dest: "/etc/systemd/system/{{ item | basename }}"
-    owner: root
-    group: root
-    mode: 0644
-  with_fileglob:
-    - /templates/etc/systemd/system/*.service
-
 - name: Install nginx sites-enabled
   template:
     src: etc/nginx/sites-enabled/careas_apps_react.conf

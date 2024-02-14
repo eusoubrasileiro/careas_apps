@@ -5,6 +5,19 @@
   tags:
     - always
 
+- name: Install *.service files
+  template:
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item | basename }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_fileglob:
+    - "{{ role_path }}/templates/etc/systemd/system/*.service"
+  tags:
+    - always
+    - services
+
 - name: set-up readonly overlay mount 
   include_tasks: readonly.yaml
   tags:
