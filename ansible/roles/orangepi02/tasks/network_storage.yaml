@@ -34,15 +34,20 @@
   tags:    
     - nfs
 
+# /mnt/shared is NTFS-3g so must be accessed as root to rw
+# /mnt/motion is mounted by user 1001 (andre is 10001 since 1000 is orangepi)
+# hence must access as 1001 to have rw access
 - name: Configure NFS exports
   become: yes
   lineinfile:
     path: /etc/exports
-    line: |
-      /mnt/shared *(rw,sync,no_root_squash)
-      /mnt/motion *(rw,sync)
+    line: "{{ item.line }}"
     insertafter: EOF
     state: present
+    regexp: "^{{ item.line }}$"
+  loop:
+    - { line: "/mnt/shared *(rw,sync,no_root_squash)" }
+    - { line: "/mnt/motion *(rw,sync,all_squash,no_subtree_check,anonuid=1001,anongid=1001)" }
   tags:    
     - nfs
 
