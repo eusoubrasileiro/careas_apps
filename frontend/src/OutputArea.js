@@ -1,19 +1,29 @@
 import React from 'react';
 
-function OutputOptions(props){  
+
+function OutputOptions({RadioChanged}){  
+
+  const handleChange = (e) => {
+    if (!RadioChanged) return;    
+    RadioChanged();    
+  };
+
   return (   
     <>
     <label className="form-check-label">Formato Saída</label>
     <div className="form-check form-check-inline">
-      <input type="radio" className="form-check-input" id="radio1" value="sigareas" name={props.name} defaultChecked/>
+      <input type="radio" className="form-check-input" id="radio1" value="sigareas" 
+      onChange={handleChange} name='output_format' defaultChecked/>
       <label className="form-check-label" htmlFor="radio1">sigareas</label>   
     </div>
     <div className="form-check form-check-inline">
-      <input type="radio" className="form-check-input" id="radio2" value="gtmpro" name={props.name}/>
+      <input type="radio" className="form-check-input" id="radio2" value="gtmpro" 
+      onChange={handleChange} name='output_format'/>
       <label className="form-check-label" htmlFor="radio2">gtmpro</label>
     </div>    
     <div className="form-check form-check-inline">
-      <input type="radio" className="form-check-input" id="radio3" value="ddegree" name={props.name}/>
+      <input type="radio" className="form-check-input" id="radio3" value="ddegree" 
+      onChange={handleChange} name='output_format'/>
       <label className="form-check-label" htmlFor="radio3">ddegree</label>
     </div>  
     </> 
@@ -28,7 +38,7 @@ function OutTextArea({text}){
   );      
 }
 
-function OutputArea({textarea}){  
+function OutputArea({textarea, radioChanged}){  
 
   const downloadTxtFile = (e) => {
     e.preventDefault();
@@ -44,7 +54,7 @@ function OutputArea({textarea}){
   return (
     <div className="row">
     <div className="col">                    
-      <OutputOptions name='output_format'/>          
+      <OutputOptions RadioChanged={radioChanged}/>          
       <OutTextArea text={textarea} />
       <button type="button" className="btn btn-primary" 
         onClick={(e) => downloadTxtFile(e)}>Download</button>        

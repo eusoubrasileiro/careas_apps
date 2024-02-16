@@ -27,6 +27,11 @@ export default function App() {
   const [outputtext, setOutputText] = useState('carregando...');
   const [loading, setLoading] = useState(true);
 
+
+  function clickConvert(){
+    document.getElementById('btn-convert').click();
+  }
+
   function ConvertInputButton(e) {
     if(e){
       e.preventDefault(); // prevent reloading the page      
@@ -78,7 +83,7 @@ export default function App() {
       return new Popover(popoverTriggerEl)
     })
     // Load the first Plot    
-    ConvertInputButton();
+    clickConvert();
   }, []);
 
   return (
@@ -91,7 +96,7 @@ export default function App() {
               <InputArea onSubmit={(e) => ConvertInputButton(e)} />
             </div>
             <div className="col">
-              <OutputArea textarea={outputtext} />
+              <OutputArea textarea={outputtext} radioChanged={ () => clickConvert() }/>
             </div>
             <div className="col">
               <PlotArea loading_state={loading} />

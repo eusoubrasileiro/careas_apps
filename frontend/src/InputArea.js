@@ -118,12 +118,6 @@ function InputArea({onSubmit}){
   const [textarea, setTextArea] = useState(sample_file);
   const [rumos_v_tol, setRumos_v_tol] = useState('0.5');
 
-  useEffect(() => {
-    document.getElementById('btn-convert').click();
-    // to convert the first time
-  },[])
-
-
   return (
       <>
         <div className="row">  
