@@ -5,28 +5,40 @@ import InputArea from "./InputArea";
 import OutputArea from "./OutputArea";
 import { Tooltip, Popover} from 'bootstrap'; // dont need to import in index.html
 // could import only 'bootstrap/js/dist/tooltip.js' but would have to eject
+import Plot from 'react-plotly.js';
 import './index.css';
 
 
-function PlotArea({loading_state}){
+function PlotArea({loading_state, plotData}){
+
+  function PlotData() {
+    if (!plotData) {
+      return <></>;
+    }
+    return (
+      <div id="plotly_figure" hidden={loading_state}>
+      <Plot data={plotData['data']} layout={plotData['layout']} />
+      </div>
+    );
+  }
 
   return (
     <div id="plot-area">
       <div className="spinner-border" role="status" hidden={!loading_state}>
         <span className="visually-hidden">Loading...</span>
       </div>
-      <div id="plotly_figure" hidden={loading_state}>
-        {/* Your plot content here */}
-      </div>
+      <PlotData />
     </div>
   );
+
 }
+
 
 
 export default function App() {
   const [outputtext, setOutputText] = useState('carregando...');
   const [loading, setLoading] = useState(true);
-
+  const [plotdata, setPlotData] = useState(null);
 
   function clickConvert(){
     document.getElementById('btn-convert').click();
@@ -61,13 +73,13 @@ export default function App() {
       method: 'post',
       body: ''
     }).then(response => response.json().then(data => {
-      // const myNode = document.getElementById("bokeh_plot");
-      // myNode.replaceChildren(); // clean previous plot
       setLoading(false);
+      setPlotData(data);      
     })).catch((error) => {
       setOutputText( "Error connecting to backend server - error: " + toString(error) );
     });
   }
+
 
   useEffect(() => {
     // Load all ToolTips
@@ -99,7 +111,7 @@ export default function App() {
               <OutputArea textarea={outputtext} radioChanged={ () => clickConvert() }/>
             </div>
             <div className="col">
-              <PlotArea loading_state={loading} />
+              <PlotArea loading_state={loading} plotData={plotdata} />
             </div>
           </div>
         </form>
