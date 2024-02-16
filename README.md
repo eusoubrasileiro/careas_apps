@@ -1,3 +1,4 @@
 # Careas Apps Website 
 
-https://careas.iambr.xyz/
+~~https://careas.iambr.xyz/ not paying anymore ~~
+

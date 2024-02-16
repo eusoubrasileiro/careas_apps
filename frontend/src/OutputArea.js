@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 function OutputOptions(props){  
   return (   
@@ -20,46 +20,38 @@ function OutputOptions(props){
   )    
 }
 
-function OutTextArea(props){
+function OutTextArea({text}){
   return (        
       <textarea className="form-control" rows="20" name="output_text" wrap="off"
-      value={props.value}
+      value={text}
       readOnly/>                            
   );      
 }
 
-class OutputArea extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { // we save the state of the child 'we care' here
-      textarea: 'carregando...'
-    };
-  }  
-  
-  downloadTxtFile(e){ // ugly js for download 
-    e.preventDefault()
+function OutputArea({textarea}){  
+
+  const downloadTxtFile = (e) => {
+    e.preventDefault();
     const element = document.createElement("a");
-    console.log(this.outarea);
-    const file = new Blob([this.state.textarea], {type: 'text/csv'});
+    const file = new Blob([textarea], {type: 'text/csv'});
     element.href = URL.createObjectURL(file);
     element.download = "SIGAREAS.txt";
-    document.body.appendChild(element); // Required for this to work in FireFox
+    document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
-  }  
-
-  render(){
-    return (    
-        <div className="row">
-          <div className="col">                    
-            <OutputOptions name='output_format'/>          
-            <OutTextArea value={this.state.textarea} />
-            <button type="button" className="btn btn-primary" 
-              onClick={(e) => this.downloadTxtFile(e)}>Download</button>        
-          </div>
-        </div>
-    )
   }
+
+  return (
+    <div className="row">
+    <div className="col">                    
+      <OutputOptions name='output_format'/>          
+      <OutTextArea text={textarea} />
+      <button type="button" className="btn btn-primary" 
+        onClick={(e) => downloadTxtFile(e)}>Download</button>        
+    </div>
+  </div>
+  );
 }
 
-  export { OutputArea }
+
+  export default OutputArea;
