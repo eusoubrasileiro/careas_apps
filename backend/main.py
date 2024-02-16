@@ -30,9 +30,7 @@ from poligonal.util import (
     NotPairofCoordinatesError
 )
 
-from bokeh.plotting import figure
-from bokeh.embed import json_item
-from bokeh.models import Arrow, NormalHead
+import plotly.graph_objects as go
 
 app = Flask('careas-tools')
 # static files including html page
@@ -102,47 +100,67 @@ def convert():
 @app.route('/flask/plot', methods=['POST'])
 def plot():
     # for plotting memorial original also plot converted rumos adjusted
-    return bokeh_memorial_draw(cache.get('points'), cache.get('points_verd'))    
+    return plotply_memorial_draw(cache.get('points'), cache.get('points_verd'))    
 
 
-def bokeh_memorial_draw(points, points_verd=None):
-    """draw with bokeh the points passed as circles
-    connected with arrows (according to the their order)
-    * returns: json data for BokehJS to plot """
+def plotply_memorial_draw(points, points_verd=None):
+    # """draw with plotly the points passed as circles
+    # connected with arrows (according to the their order)
+    # * returns: json data for PlotlyJS to plot """
     x, y = points[:, 1], points[:, 0]
 
-    TOOLTIPS = [ # allowed hover tooltips
-        ("index", "$index"),
-        ("(x,y)", "($x{0,0.00000000}, $y{0,0.00000000})") 
-        ]
-    p = figure(width=350, height=350, toolbar_location="below",  tooltips=TOOLTIPS,
-        tools='box_zoom,pan,save,hover,reset,tap,wheel_zoom')
-    
+    fig = go.Figure()
+    fig.update_layout(width=350, height=350, margin=go.layout.Margin(l=0, r=0, b=0, t=0))  # Customize margins as needed
+
     # relation between number of points and symbols size 
-    csize = 11 - len(x)/5  # 15:8, 30:5
+    # Set marker size and line width
+    csize = 9 - len(x)/5  # 15:8, 30:5
     csize = 3 if csize < 3 else csize 
     lw = 0.5 if csize < 4 else 1
-    # draw all points as circles 
-    p.circle(x, y, fill_color="gray", legend_label="input", size=csize, alpha=0.8)
-    # add both a line and circles on the same plot
-    x0, y0 = x[0], y[0]
-    for x, y in zip(x[1:], y[1:]):
-        p.add_layout(Arrow(end=NormalHead(fill_color="white", size=csize+1, 
-                    fill_alpha=0.2, line_width=lw),
-                    x_start=x0, y_start=y0, x_end=x, y_end=y))
-        x0, y0 = x, y        
 
-    if points_verd is not None:
-        x, y = points_verd[:, 1], points_verd[:, 0]
-        p.cross(x, y, color="red", legend_label="rumos-v", size=csize, alpha=0.8)
+    # Arrows
+    fig.add_trace(go.Scatter(
+        x=x,
+        y=y,
+        mode="lines+markers",    
+        marker=dict(size=csize+5, color="gray", opacity=0.3, symbol="arrow", line_width=lw, angleref="previous"),    
+        hoverinfo='none',
+    ))
 
-    p.legend.label_text_font = "times"
-    p.legend.background_fill_alpha = 0.1
-    p.legend.location = "top_left"
-    p.legend.background_fill_color = "gray"
-    item_text = json.dumps(json_item(p))
-    return item_text # json data for BokehJS to plot in react
+    if True is not None:
+        fig.add_trace(go.Scatter(
+            x=x,
+            y=y,
+            mode="markers",
+            marker=dict(size=csize*1.5, color="red", opacity=0.8, symbol="cross", line_width=lw),
+            name="rumos-v",
+            hoverinfo='x+y',
+        ))
+    # Create scatter traces for points
+    fig.add_trace(go.Scatter(
+        x=x,
+        y=y,
+        mode="markers",
+        marker=dict(size=csize, color="blue", opacity=0.8),
+        name="input",
+        hoverinfo='x+y',
+    ))
 
+
+    for trace in fig.data: # remove legend from arrows
+        if trace['name'] is None: 
+            trace['showlegend'] = False
+
+    # legend position
+    fig.update_layout(legend=dict(
+        yanchor="top",
+        y=0.99,
+        xanchor="left",
+        x=0.01,
+        bgcolor="rgba(0,0,0,0)",
+    ))
+
+    return fig.to_json()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
