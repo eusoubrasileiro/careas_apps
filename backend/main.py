@@ -8,10 +8,6 @@ from flask import (
     jsonify
 )
 
-# Cross Origin Resource Sharing (CORS)
-# making cross-origin AJAX possible.
-# frontend in react node and backend flask cross-origin
-#from flask_cors import CORS, cross_origin
 import numpy
 
 from poligonal.util import NotPairofCoordinatesError
@@ -126,8 +122,7 @@ def plotply_memorial_draw(points, points_verd=None):
         marker=dict(size=csize+5, color="gray", opacity=0.3, symbol="arrow", line_width=lw, angleref="previous"),    
         hoverinfo='none',
     ))
-
-    if True is not None:
+    if points_verd is not None:
         fig.add_trace(go.Scatter(
             x=x,
             y=y,
@@ -145,12 +140,9 @@ def plotply_memorial_draw(points, points_verd=None):
         name="input",
         hoverinfo='x+y',
     ))
-
-
     for trace in fig.data: # remove legend from arrows
         if trace['name'] is None: 
             trace['showlegend'] = False
-
     # legend position
     fig.update_layout(legend=dict(
         yanchor="top",

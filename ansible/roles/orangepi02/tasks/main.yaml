@@ -4,6 +4,7 @@
   include_tasks: careas_apps.yaml
   tags:
     - always
+    - webserver
 
 - name: Install *.service files
   template:

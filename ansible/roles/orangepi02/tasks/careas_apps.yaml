@@ -25,20 +25,50 @@
     # nginx forward requests from frontend to backend
     - nginx 
 
-- name: Copy folder backend and frontend/build.zip
+- name: Create careas_apps folders (if not exist)
+  file:    
+    path: "{{ careas_apps_dir }}/frontend"
+    state: directory
+    owner: andre
+    group: andre
+    mode: "a+rx"
+  tags:
+    - webserver
+
+# copy react-javascript BUILT bundle to frontend
+# from windows or any other place it was built to same folder ...
+# nginx needs a+Rx permission to access the contents of the build folder
+# otherwise error 404
+- name: Syncronize files/folder frontend
   copy:
-    src: "{{ item }}"
+    src: /home/andre/Projects/careas_apps/frontend/build
+    dest: "{{ careas_apps_dir }}/frontend"
+    force: true
+    owner: andre
+    group: andre
+    mode: "a+rx"
+  tags:
+    - webserver
+
+- name: Syncronize files/folder backend
+  become: true
+  copy:
+    src: /home/andre/Projects/careas_apps/backend
     dest: "{{ careas_apps_dir }}"
-    mode: 0777
-  loop:
-    - "{{ playbook_dir }}/../backend"
-    - "{{ playbook_dir }}/../frontend/build.zip"
+    force: true
+    owner: andre
+    group: andre
+    mode: "a+rx"
+  tags:
+    - webserver
 
 - name: Install virtual-env and backend requirements
   pip:
     requirements: "{{ careas_apps_dir }}/backend/requeriments.txt"
     virtualenv: "{{ careas_apps_dir }}/pyvenv"
     virtualenv_command: /usr/bin/python3.8 -m venv
+  tags:
+    - webserver
 
 - name: Install careas-pip on virtual-env
   pip:
@@ -46,17 +76,9 @@
     virtualenv: "{{ careas_apps_dir }}/pyvenv"
     virtualenv_site_packages: true
     virtualenv_command: /usr/bin/python3.8 -m venv
-
-# copy react-javascript BUILT bundle to frontend
-# from windows or any other place it was built to same folder ...
-- name: Unpack build, chown dir, 
-  shell:
-    cmd: |        
-      mkdir -p frontend && unzip build.zip -d frontend
-      chown -R andre:andre ../careas_apps/*      
-      mkdir -p /tmp/log/nginx  
-    chdir: "{{ careas_apps_dir }}"
-
+  tags:
+    - webserver
+  
 # careas_apps running by user andre (better control not root)
 # to allow run on port 8000 
 # HTTPS and forward will be dealt by https://loophole.cloud/
@@ -66,10 +88,13 @@
     touch /etc/authbind/byport/8000
     chmod 500 /etc/authbind/byport/8000
     chown andre /etc/authbind/byport/8000
+  tags:
+    - webserver
 
 - name: Install nginx sites-enabled
   template:
     src: etc/nginx/sites-enabled/careas_apps_react.conf
     dest: /etc/nginx/sites-enabled
-
+  tags:
+    - webserver
 
