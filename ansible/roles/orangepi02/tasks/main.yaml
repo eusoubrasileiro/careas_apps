@@ -35,17 +35,6 @@
   tags:
     - always
 
-- name: Enable loophole but don't start it (need to login first in browser)
-  systemd:
-    name: "{{ item }}"
-    enabled: true
-    masked: false
-    state: restarted
-    daemon_reload: true
-    force: true
-  loop:
-    - loophole
-
 - name: Enable and start flask backend services
   systemd:
     name: "{{ item }}"
