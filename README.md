@@ -3,12 +3,10 @@
 ![alt text](https://github.com/eusoubrasileiro/careas_apps/blob/react/site.png)
 
 
-https://careas.loophole.site/ 
+https://careas.xyz 
 
-- loophole [site](https://loophole.cloud/)
-  - totally free
-  - accepts tunnel to any port (avoiding those blocked by my home ISP)
-  - but pretty unstable (even with loophole cli as a service goes down very often)
-    - right now probably is down and I must restart it
-  
+- 2US$ for 1 year for namecheap domain
+- using free aewsome cloudflare tunnel for public domain
+
+~~https://careas.loophole.site/~~ used for tunnel I gave up (pretty unstabble)
 ~~https://careas.iambr.xyz/~~ not paying anymore

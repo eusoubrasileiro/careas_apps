@@ -1,11 +1,13 @@
-import ReactDOM from "react-dom/client";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
 import { useState, useEffect } from 'react';
 import InputArea from "./InputArea";
 import OutputArea from "./OutputArea";
 import { Tooltip, Popover} from 'bootstrap'; // dont need to import in index.html
 // could import only 'bootstrap/js/dist/tooltip.js' but would have to eject
 import Plot from 'react-plotly.js';
-import './index.css';
+import reportWebVitals from './reportWebVitals';
 
 
 function PlotArea({loading_state, plotData}){
@@ -126,6 +128,10 @@ const root = ReactDOM.createRoot(document.getElementById('root-app'));
 root.render(<App/>);
 
   
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals(console.log);
 
 
   
