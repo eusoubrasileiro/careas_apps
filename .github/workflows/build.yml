@@ -1,12 +1,10 @@
-name: Build React App
+name: Build and Release React App
 
 on:
-  push:
-    branches:
-      - main  # Or your specific branch for production
+  workflow_dispatch:  # manual-only
 
 jobs:
-  build:
+  build-and-release:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,18 +14,25 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '20.18.0'  # Your Node.js version
+          node-version: '20.18.0'
 
       - name: Install dependencies
-        working-directory: frontend  # Specify the frontend directory
+        working-directory: frontend
         run: npm install
 
       - name: Build the React app
-        working-directory: frontend  # Specify the frontend directory
-        run: npm run build
+        working-directory: frontend
+        run: CI=false npm run build
 
-      - name: Upload build folder as artifact
-        uses: actions/upload-artifact@v2
+      - name: Zip the React build
+        working-directory: frontend
+        run: zip -r build.zip build
+
+      - name: Create or Update Release
+        id: create_or_update_release
+        uses: softprops/action-gh-release@v1
         with:
-          name: react-build
-          path: frontend/build  # Adjust to the path where React outputs the built bundle
+          tag_name: latest
+          files: frontend/build.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
