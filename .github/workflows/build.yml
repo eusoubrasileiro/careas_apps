@@ -24,9 +24,9 @@ jobs:
         working-directory: frontend
         run: CI=false npm run build
 
-      - name: Zip the React build
+      - name: Zip the React build and backend
         working-directory: frontend
-        run: zip -r build.zip build
+        run: zip -r build.zip build ../backend  
 
       - name: Create or Update Release
         id: create_or_update_release
