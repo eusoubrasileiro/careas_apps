@@ -25,21 +25,21 @@ jobs:
         run: CI=false npm run build
 
       - name: Create temporary directory for zipping
-        run: mkdir temp_build
+        run: mkdir package
 
       - name: Copy build and backend to temporary directory
         run: |
-          cp -r frontend/build temp_build/
-          cp -r backend temp_build/
+          cp -r frontend/build package/
+          cp -r backend package/
 
       - name: Zip the contents of the temporary directory
-        run: zip -r build.zip temp_build/build temp_build/backend
+        run: tar -zcvf build.tar.gz package
 
       - name: Create or Update Release
         id: create_or_update_release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: latest
-          files: build.zip
+          files: build.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
