@@ -24,9 +24,16 @@ jobs:
         working-directory: frontend
         run: CI=false npm run build
 
-      - name: Zip the React build and backend
-        working-directory: frontend
-        run: zip -r build.zip build ../backend  
+      - name: Create temporary directory for zipping
+        run: mkdir temp_build
+
+      - name: Copy build and backend to temporary directory
+        run: |
+          cp -r frontend/build temp_build/
+          cp -r backend temp_build/
+
+      - name: Zip the contents of the temporary directory
+        run: zip -r build.zip temp_build/*
 
       - name: Create or Update Release
         id: create_or_update_release
