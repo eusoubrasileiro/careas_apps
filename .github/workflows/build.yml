@@ -33,7 +33,7 @@ jobs:
           cp -r backend temp_build/
 
       - name: Zip the contents of the temporary directory
-        run: zip -r build.zip temp_build/*
+        run: zip -r build.zip temp_build/build temp_build/backend
 
       - name: Create or Update Release
         id: create_or_update_release
