@@ -40,6 +40,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: latest
-          files: frontend/build.zip
+          files: build.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
