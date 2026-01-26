@@ -6,7 +6,6 @@ import os
 import tempfile
 
 from flask import Flask, request, jsonify
-import plotly.graph_objects as go
 from flask_caching import Cache
 
 from aidbag.anm.careas.poligonal.util import (
@@ -16,6 +15,7 @@ from aidbag.anm.careas.poligonal.util import (
     forceverdFailed,
     NotPairofCoordinatesError
 )
+from aidbag.anm.careas.poligonal.plotly import plotly_memorial_draw
 
 
 # App setup - production vs development
@@ -112,75 +112,6 @@ def convert():
 @app.route('/flask/plot', methods=['POST'])
 def plot():
     return plotly_memorial_draw(cache.get('points'), cache.get('points_verd'))
-
-
-def plotly_memorial_draw(points, points_verd=None):
-    """Draw memorial points with Plotly, returns JSON for PlotlyJS."""
-    x, y = points[:, 1], points[:, 0]
-
-    fig = go.Figure()
-    fig.update_layout(
-        width=350,
-        height=350,
-        margin=go.layout.Margin(l=0, r=0, b=0, t=0)
-    )
-
-    # Dynamic marker size based on point count
-    csize = max(3, 9 - len(x) / 5)
-    lw = 0.5 if csize < 4 else 1
-
-    # Arrows showing direction
-    fig.add_trace(go.Scatter(
-        x=x, y=y,
-        mode='lines+markers',
-        marker=dict(
-            size=csize + 5,
-            color='gray',
-            opacity=0.3,
-            symbol='arrow',
-            line_width=lw,
-            angleref='previous'
-        ),
-        hoverinfo='none',
-    ))
-
-    # True bearing adjusted points (if applicable)
-    if points_verd is not None:
-        fig.add_trace(go.Scatter(
-            x=x, y=y,
-            mode='markers',
-            marker=dict(
-                size=csize * 1.5,
-                color='red',
-                opacity=0.8,
-                symbol='cross',
-                line_width=lw
-            ),
-            name='rumos-v',
-            hoverinfo='x+y',
-        ))
-
-    # Input points
-    fig.add_trace(go.Scatter(
-        x=x, y=y,
-        mode='markers',
-        marker=dict(size=csize, color='blue', opacity=0.8),
-        name='input',
-        hoverinfo='x+y',
-    ))
-
-    # Remove legend from arrows trace
-    for trace in fig.data:
-        if trace['name'] is None:
-            trace['showlegend'] = False
-
-    fig.update_layout(legend=dict(
-        yanchor='top', y=0.99,
-        xanchor='left', x=0.01,
-        bgcolor='rgba(0,0,0,0)',
-    ))
-
-    return fig.to_json()
 
 
 if __name__ == '__main__':
