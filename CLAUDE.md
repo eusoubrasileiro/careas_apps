@@ -73,10 +73,19 @@ GITHUB_TOKEN=ghp_your_token docker compose build
 # Or use .env file (add to .gitignore!)
 echo "GITHUB_TOKEN=ghp_your_token" > .env
 docker compose build
-
-# Run locally
-docker compose up
 ```
+
+### Local Testing (without Traefik)
+
+Use `docker run` directly since `docker-compose.yml` targets VPS with Traefik:
+
+```bash
+cd ~/Projects/anm/careas_apps
+docker build -t careas_apps:test --build-arg GITHUB_TOKEN=ghp_your_token .
+docker run -p 8000:8000 careas_apps:test
+```
+
+Open http://localhost:8000
 
 **CI/CD**: GitHub Actions uses `secrets.TOKEN` (configured in repo settings).
 

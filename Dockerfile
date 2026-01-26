@@ -24,8 +24,9 @@ RUN pip install --no-cache-dir "aidbag @ git+https://${GITHUB_TOKEN}@github.com/
 # Copy backend code
 COPY backend/ ./backend/
 
-# Copy built frontend
-COPY --from=frontend-builder /app/frontend/build ./build/
+# Copy built frontend (Vite outputs to dist/)
+# Flask expects static_folder='../build' relative to /app, so copy to /build
+COPY --from=frontend-builder /app/frontend/dist /build/
 
 # Environment
 ENV FLASK_APP=backend.main
