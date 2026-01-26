@@ -1,12 +1,9 @@
 import sys
 import traceback
-import secrets
 import argparse
 import os
-import tempfile
 
 from flask import Flask, request, jsonify
-from flask_caching import Cache
 
 from aidbag.anm.careas.poligonal.util import (
     readMemorial,
@@ -15,7 +12,6 @@ from aidbag.anm.careas.poligonal.util import (
     forceverdFailed,
     NotPairofCoordinatesError
 )
-from aidbag.anm.careas.poligonal.plotly import plotly_memorial_draw
 
 
 # App setup - production vs development
@@ -23,14 +19,6 @@ if os.environ.get('APP_ENV') == 'production':
     app = Flask('careas-tools', static_url_path='', static_folder='../build')
 else:
     app = Flask('careas-tools')
-
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 8 * 60 * 60  # 8 hours
-app.config['SECRET_KEY'] = secrets.token_hex(16)
-app.config['CACHE_THRESHOLD'] = 10000
-app.config['CACHE_DIR'] = os.path.join(tempfile.gettempdir(), 'careas_apps')
-app.config['CACHE_TYPE'] = 'FileSystemCache'
-
-cache = Cache(app)
 
 
 # Routes for production (serve React build)
@@ -83,10 +71,6 @@ def convert():
             fmt=request.form['output_format']
         )
 
-        # Server-side cache for /plot endpoint
-        cache.set('points_verd', points_verd)
-        cache.set('points', points)
-
     except forceverdFailed:
         converted_file = (
             "Nao e possivel ajustar para rumos verdadeiros\n"
@@ -106,12 +90,12 @@ def convert():
         succeed = False
 
     print(converted_file, file=sys.stderr, flush=True)
-    return jsonify({'status': succeed, 'data': converted_file})
-
-
-@app.route('/flask/plot', methods=['POST'])
-def plot():
-    return plotly_memorial_draw(cache.get('points'), cache.get('points_verd'))
+    return jsonify({
+        'status': succeed,
+        'data': converted_file,
+        'points': points.tolist() if points is not None else None,
+        'points_verd': points_verd.tolist() if points_verd is not None else None
+    })
 
 
 if __name__ == '__main__':

@@ -12,12 +12,13 @@
 ```
 careas_apps/
 ├── backend/
-│   ├── main.py          # Flask API (/flask/convert, /flask/plot)
+│   ├── main.py          # Flask API (/flask/convert)
 │   └── requirements.txt
 ├── frontend/src/
-│   ├── index.js         # App principal + PlotArea
-│   ├── InputArea.js     # Input de coordenadas
-│   ├── OutputArea.js    # Output formatado
+│   ├── App.tsx          # App principal + PlotArea
+│   ├── plotUtils.ts     # Plotly chart generation
+│   ├── InputArea.tsx    # Input de coordenadas
+│   ├── OutputArea.tsx   # Output formatado
 │   └── index.css
 └── debug/               # Scripts de desenvolvimento
 ```
@@ -26,8 +27,7 @@ careas_apps/
 
 | Endpoint | Metodo | Descricao |
 |----------|--------|-----------|
-| `/flask/convert` | POST | Converte coordenadas entre formatos |
-| `/flask/plot` | POST | Retorna JSON Plotly para visualizacao |
+| `/flask/convert` | POST | Converte coordenadas, retorna points para plot |
 
 ## Formatos Suportados
 
@@ -38,7 +38,7 @@ careas_apps/
 
 - Conversao de formatos de coordenadas
 - Ajuste para rumos verdadeiros (NSEW)
-- Visualizacao do poligono com Plotly
+- Visualizacao do poligono com Plotly (client-side)
 - Upload de arquivo ou input manual
 - Download do resultado
 
@@ -59,6 +59,25 @@ cd backend && python main.py -d
 cd frontend && npm start
 ```
 
+## Docker Build
+
+Requires GitHub PAT to clone private `aidbag` dependency:
+
+```bash
+# Token must be on same line (env var inline)
+GITHUB_TOKEN=ghp_your_token docker compose build
+
+# Or use .env file (add to .gitignore!)
+echo "GITHUB_TOKEN=ghp_your_token" > .env
+docker compose build
+
+# Run locally
+docker compose up
+```
+
+**CI/CD**: GitHub Actions uses `secrets.TOKEN` (configured in repo settings).
+
 ## Deploy
 
-Docker container publicado em gis.anm.amiticia.cc via Portainer.
+Docker container published to `ghcr.io/eusoubrasileiro/careas_apps:latest`.
+Deployed to gis.anm.amiticia.cc via nginx-proxy.

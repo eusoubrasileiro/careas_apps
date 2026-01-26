@@ -5,6 +5,7 @@ import Plot from 'react-plotly.js';
 import InputArea from './InputArea';
 import OutputArea from './OutputArea';
 import { MemorialFormData, ConvertResponse, PlotlyData, SAMPLE_MEMORIAL } from './types';
+import { createMemorialPlot } from './plotUtils';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
@@ -22,18 +23,6 @@ export default function App() {
       rumos_v: true,
     },
   });
-
-  const fetchPlot = useCallback(async () => {
-    try {
-      const res = await fetch('/flask/plot', { method: 'POST' });
-      const data: PlotlyData = await res.json();
-      setPlotData(data);
-    } catch (error) {
-      console.error('Plot error:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   const onConvert = useCallback(async (formData: MemorialFormData) => {
     setLoading(true);
@@ -54,16 +43,16 @@ export default function App() {
       const data: ConvertResponse = await res.json();
       setOutputText(data.data);
 
-      if (data.status) {
-        await fetchPlot();
-      } else {
-        setLoading(false);
+      if (data.status && data.points) {
+        const figure = createMemorialPlot(data.points, data.points_verd);
+        setPlotData(figure);
       }
     } catch (error) {
       setOutputText(`Error connecting to backend server: ${error}`);
+    } finally {
       setLoading(false);
     }
-  }, [fetchPlot]);
+  }, []);
 
   const triggerConvert = useCallback(() => {
     handleSubmit(onConvert)();

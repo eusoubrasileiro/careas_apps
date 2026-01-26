@@ -16,6 +16,8 @@ export interface MemorialFormData {
 export interface ConvertResponse {
   status: boolean;
   data: string;
+  points: number[][] | null;
+  points_verd: number[][] | null;
 }
 
 export interface PlotlyData {

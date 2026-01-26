@@ -1,20 +1,23 @@
-version: '3.8'
-
 services:
   careas-app:
-    build: .
+    build:
+      context: .
+      args:
+        - GITHUB_TOKEN=${GITHUB_TOKEN}
     image: ghcr.io/eusoubrasileiro/careas_apps:latest
     container_name: careas-app
     restart: unless-stopped
-    ports:
-      - "8000:8000"
     environment:
       - APP_ENV=production
-      - VIRTUAL_HOST=gis.anm.amiticia.cc
-      - LETSENCRYPT_HOST=gis.anm.amiticia.cc
     networks:
-      - nginx-proxy
+      - public_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.careas.rule=Host(`gis.anm.amiticia.cc`)"
+      - "traefik.http.routers.careas.entrypoints=websecure"
+      - "traefik.http.routers.careas.tls.certresolver=letsencrypt"
+      - "traefik.http.services.careas.loadbalancer.server.port=8000"
 
 networks:
-  nginx-proxy:
+  public_network:
     external: true
