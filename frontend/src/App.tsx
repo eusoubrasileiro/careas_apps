@@ -1,12 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { Container, Row, Col, Spinner } from 'react-bootstrap';
-import Plot from 'react-plotly.js';
+import createPlotlyComponent from 'react-plotly.js/factory';
+import Plotly from 'plotly.js-basic-dist';
+import { Loader2, MapPin } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+const Plot = createPlotlyComponent(Plotly);
 import InputArea from './InputArea';
 import OutputArea from './OutputArea';
-import { MemorialFormData, ConvertResponse, PlotlyData, SAMPLE_MEMORIAL } from './types';
+import type { MemorialFormData, ConvertResponse, PlotlyData } from './types';
+import { SAMPLE_MEMORIAL } from './types';
 import { createMemorialPlot } from './plotUtils';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
 export default function App() {
@@ -65,42 +69,84 @@ export default function App() {
   }, []);
 
   return (
-    <Container id="main-container" className="py-3">
-      <h2>Converte formato memorial</h2>
-      <Row>
-        <Col>
-          <InputArea
-            register={register}
-            watch={watch}
-            setValue={setValue}
-            onSubmit={triggerConvert}
-          />
-        </Col>
-        <Col>
-          <OutputArea
-            register={register}
-            outputText={outputText}
-            onFormatChange={triggerConvert}
-          />
-        </Col>
-        <Col>
-          <PlotArea loading={loading} plotData={plotData} />
-        </Col>
-      </Row>
-    </Container>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Header */}
+      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary rounded-lg">
+              <MapPin className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight">Conversor de Memorial</h1>
+              <p className="text-sm text-muted-foreground">Converta coordenadas entre formatos</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        {/* Top Row: Input + Output */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Input Card */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Entrada</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <InputArea
+                register={register}
+                watch={watch}
+                setValue={setValue}
+                onSubmit={triggerConvert}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Output Card */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Saida</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <OutputArea
+                watch={watch}
+                setValue={setValue}
+                outputText={outputText}
+                onFormatChange={triggerConvert}
+              />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Bottom Row: Plot */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Visualizacao</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PlotArea loading={loading} plotData={plotData} />
+          </CardContent>
+        </Card>
+      </main>
+    </div>
   );
 }
 
 function PlotArea({ loading, plotData }: { loading: boolean; plotData: PlotlyData | null }) {
   return (
-    <div id="plot-area">
+    <div className="flex items-center justify-center aspect-square max-w-[500px] mx-auto bg-slate-50 rounded-md">
       {loading && (
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       )}
       {!loading && plotData && (
-        <Plot data={plotData.data} layout={plotData.layout} />
+        <Plot
+          data={plotData.data}
+          layout={plotData.layout}
+          useResizeHandler={true}
+          style={{ width: '100%', height: '100%' }}
+        />
       )}
     </div>
   );

@@ -5,7 +5,7 @@
 ## Stack
 
 **Backend**: Flask + poligonal (aidbag)
-**Frontend**: React 18 + Bootstrap 5 + Plotly.js
+**Frontend**: Vite + React 19 + Tailwind CSS + shadcn/ui + Plotly.js
 
 ## Estrutura
 
@@ -14,13 +14,16 @@ careas_apps/
 ├── backend/
 │   ├── main.py          # Flask API (/flask/convert)
 │   └── requirements.txt
-├── frontend/src/
-│   ├── App.tsx          # App principal + PlotArea
-│   ├── plotUtils.ts     # Plotly chart generation
-│   ├── InputArea.tsx    # Input de coordenadas
-│   ├── OutputArea.tsx   # Output formatado
-│   └── index.css
-└── debug/               # Scripts de desenvolvimento
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx          # App principal + PlotArea
+│   │   ├── InputArea.tsx    # Input de coordenadas
+│   │   ├── OutputArea.tsx   # Output formatado
+│   │   ├── plotUtils.ts     # Plotly chart generation
+│   │   ├── types.ts         # TypeScript types
+│   │   └── components/ui/   # shadcn/ui components
+│   └── vite.config.ts       # Vite + proxy config
+└── debug/                   # Scripts de desenvolvimento
 ```
 
 ## API Endpoints
@@ -56,7 +59,7 @@ Usa `poligonal` do aidbag:
 cd backend && python main.py -d
 
 # Frontend
-cd frontend && npm start
+cd frontend && npm run dev
 ```
 
 ## Docker Build

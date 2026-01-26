@@ -1,7 +1,15 @@
-import React, { useState } from 'react';
-import { Form, Button, Collapse } from 'react-bootstrap';
-import { UseFormRegister, UseFormWatch, UseFormSetValue } from 'react-hook-form';
-import { MemorialFormData, SAMPLE_MEMORIAL } from './types';
+import { useState } from 'react';
+import type { UseFormRegister, UseFormWatch, UseFormSetValue } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown, Upload, Settings2 } from 'lucide-react';
+import type { MemorialFormData } from './types';
+import { SAMPLE_MEMORIAL } from './types';
 
 interface InputAreaProps {
   register: UseFormRegister<MemorialFormData>;
@@ -12,6 +20,7 @@ interface InputAreaProps {
 
 export default function InputArea({ register, watch, setValue, onSubmit }: InputAreaProps) {
   const rumosV = watch('rumos_v');
+  const inputFormat = watch('input_format');
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -24,113 +33,102 @@ export default function InputArea({ register, watch, setValue, onSubmit }: Input
   };
 
   return (
-    <>
-      <Form.Group className="mb-2">
-        <Form.Label>Formato Entrada</Form.Label>
-        <div>
-          <Form.Check
-            inline
-            type="radio"
-            label="scm"
-            value="scm"
-            title="grau° minuto' segundo'' milisegundos (Cadastro Mineiro)"
-            defaultChecked
-            {...register('input_format')}
-          />
-          <Form.Check
-            inline
-            type="radio"
-            label="gtmpro"
-            value="gtmpro"
-            title="grau° minuto' segundo.decimal'' (TrackMaker)"
-            {...register('input_format')}
-          />
-          <Form.Check
-            inline
-            type="checkbox"
-            label="rumos-v"
-            title="Aproxima latitude/longitude para rumos verdadeiros (NSEW)"
+    <div className="space-y-4">
+      {/* Format Selection */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+        <RadioGroup
+          value={inputFormat}
+          onValueChange={(value) => setValue('input_format', value as 'scm' | 'gtmpro')}
+          className="flex gap-4"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="scm" id="input-scm" />
+            <Label htmlFor="input-scm" className="cursor-pointer text-sm" title="grau° minuto' segundo'' milisegundos (Cadastro Mineiro)">
+              SCM
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="gtmpro" id="input-gtmpro" />
+            <Label htmlFor="input-gtmpro" className="cursor-pointer text-sm" title="grau° minuto' segundo.decimal'' (TrackMaker)">
+              GTMPro
+            </Label>
+          </div>
+        </RadioGroup>
+
+        <div className="flex items-center space-x-2 border-l pl-4">
+          <Checkbox
+            id="rumos-v"
             checked={rumosV}
-            onChange={(e) => setValue('rumos_v', e.target.checked)}
+            onCheckedChange={(checked) => setValue('rumos_v', checked as boolean)}
           />
+          <Label
+            htmlFor="rumos-v"
+            title="Aproxima latitude/longitude para rumos verdadeiros (NSEW)"
+            className="cursor-pointer text-sm"
+          >
+            Rumos verdadeiros
+          </Label>
         </div>
-      </Form.Group>
-
-      <Form.Group className="mb-2">
-        <Form.Control
-          as="textarea"
-          rows={20}
-          defaultValue={SAMPLE_MEMORIAL}
-          style={{
-            backgroundColor: '#202324',
-            color: '#fff',
-            fontFamily: 'monospace',
-            whiteSpace: 'pre',
-            resize: 'none',
-            minHeight: '200px',
-            maxHeight: '400px'
-          }}
-          {...register('input_text')}
-        />
-      </Form.Group>
-
-      <div className="d-flex gap-2 mb-2">
-        <Button variant="primary" onClick={onSubmit}>
-          Converter
-        </Button>
-        <Form.Control
-          type="file"
-          onChange={handleFileUpload}
-          accept=".txt,.csv"
-        />
       </div>
 
-      <MoreOptions register={register} watch={watch} />
-    </>
+      {/* Textarea */}
+      <Textarea
+        className="h-[280px] resize-none font-mono text-xs bg-slate-900 text-slate-100 border-slate-700 focus:border-slate-500"
+        defaultValue={SAMPLE_MEMORIAL}
+        placeholder="Cole as coordenadas aqui..."
+        {...register('input_text')}
+      />
+
+      {/* Actions */}
+      <div className="flex items-center gap-3">
+        <Button onClick={onSubmit} className="px-6">
+          Converter
+        </Button>
+
+        <label className="flex items-center gap-2 px-3 py-2 text-sm border rounded-md cursor-pointer hover:bg-accent transition-colors">
+          <Upload className="h-4 w-4" />
+          <span>Arquivo</span>
+          <input
+            type="file"
+            accept=".txt,.csv"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+        </label>
+
+        <MoreOptions register={register} />
+      </div>
+    </div>
   );
 }
 
 function MoreOptions({ register }: {
   register: UseFormRegister<MemorialFormData>;
-  watch: UseFormWatch<MemorialFormData>;
 }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <>
-      <Button
-        variant="outline-secondary"
-        size="sm"
-        onClick={() => setOpen(!open)}
-        aria-expanded={open}
-      >
-        Mais opcoes
-      </Button>
-      <Collapse in={open}>
-        <div className="mt-2">
-          <Form.Group className="d-flex align-items-center gap-2" style={{ width: '80%' }}>
-            <Form.Label className="mb-0 text-nowrap">
-              <strong>rumos-v</strong>erdadeiros tolerancia
-            </Form.Label>
-            <Form.Control
-              type="number"
-              min="0"
-              step="0.5"
-              defaultValue="0.5"
-              style={{ width: '80px' }}
-              {...register('rumos_v_tol')}
-            />
-            <span>m</span>
-            <span
-              className="text-info"
-              title="Latitudes ou longitudes com distancia geodesica menor que a maxima aqui especificada sao aproximadas. (Elipsoide SIRGAS 2000)"
-              style={{ cursor: 'help' }}
-            >
-              ?
-            </span>
-          </Form.Group>
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
+          <Settings2 className="h-4 w-4" />
+          <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="mt-3 p-3 bg-muted/50 rounded-md">
+        <div className="flex items-center gap-2 text-sm">
+          <Label className="text-muted-foreground">Tolerancia rumos-v:</Label>
+          <Input
+            type="number"
+            min="0"
+            step="0.5"
+            defaultValue="0.5"
+            className="w-20 h-8"
+            {...register('rumos_v_tol')}
+          />
+          <span className="text-muted-foreground">m</span>
         </div>
-      </Collapse>
-    </>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

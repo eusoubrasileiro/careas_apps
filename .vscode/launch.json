@@ -15,11 +15,11 @@
       "console": "integratedTerminal"
     },
     {
-      "name": "Frontend (React)",
+      "name": "Frontend (Vite)",
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "/home/andre/.nvm/versions/node/v22.14.0/bin/npm",
-      "runtimeArgs": ["start"],
+      "runtimeArgs": ["run", "dev"],
       "cwd": "${workspaceFolder}/frontend",
       "console": "integratedTerminal",
       "serverReadyAction": {
@@ -32,7 +32,7 @@
   "compounds": [
     {
       "name": "Full Stack (Frontend + Backend)",
-      "configurations": ["Backend (Flask)", "Frontend (React)"],
+      "configurations": ["Backend (Flask)", "Frontend (Vite)"],
       "stopAll": true
     }
   ]

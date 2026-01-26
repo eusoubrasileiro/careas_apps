@@ -1,13 +1,6 @@
-import { Data, Layout, PlotMarker } from 'plotly.js';
-
 export interface PlotlyFigure {
-  data: Data[];
-  layout: Partial<Layout>;
-}
-
-// Extended marker type to include angleref (not in @types/plotly.js)
-interface ArrowMarker extends Partial<PlotMarker> {
-  angleref?: 'previous';
+  data: Plotly.Data[];
+  layout: Partial<Plotly.Layout>;
 }
 
 export function createMemorialPlot(
@@ -20,7 +13,7 @@ export function createMemorialPlot(
   const csize = Math.max(3, 9 - x.length / 5);
   const lw = csize < 4 ? 0.5 : 1;
 
-  const arrowMarker: ArrowMarker = {
+  const arrowMarker = {
     size: csize + 5,
     color: 'gray',
     opacity: 0.3,
@@ -29,16 +22,16 @@ export function createMemorialPlot(
     angleref: 'previous'
   };
 
-  const data: Data[] = [
+  const data: Plotly.Data[] = [
     // Arrows showing direction
     {
       x, y,
       mode: 'lines+markers',
       type: 'scatter',
-      marker: arrowMarker as Partial<PlotMarker>,
+      marker: arrowMarker,
       hoverinfo: 'none',
       showlegend: false
-    },
+    } as Plotly.Data,
     // Input points with index annotations
     {
       x, y,
@@ -50,7 +43,7 @@ export function createMemorialPlot(
       textfont: { size: 9, color: 'darkblue' },
       name: 'input',
       hoverinfo: 'x+y'
-    }
+    } as Plotly.Data
   ];
 
   // True bearing adjusted points (if applicable)
@@ -68,15 +61,18 @@ export function createMemorialPlot(
       },
       name: 'rumos-v',
       hoverinfo: 'x+y'
-    });
+    } as Plotly.Data);
   }
 
-  const layout: Partial<Layout> = {
-    width: 350,
-    height: 350,
-    margin: { l: 75, r: 0, b: 40, t: 0 }, 
-    xaxis: { title: { text: 'Longitude' } },                                                                                                                                        
-    yaxis: { title: { text: 'Latitude' } },        
+  const layout: Partial<Plotly.Layout> = {
+    autosize: true,
+    margin: { l: 60, r: 10, b: 40, t: 10 },
+    xaxis: { title: { text: 'Longitude' } },
+    yaxis: {
+      title: { text: 'Latitude' },
+      scaleanchor: 'x',  // Keep 1:1 aspect ratio for coordinates
+      scaleratio: 1
+    },
     legend: {
       yanchor: 'top', y: 0.99,
       xanchor: 'left', x: 0.01,
