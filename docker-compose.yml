@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  careas-app:
+    build: .
+    image: ghcr.io/eusoubrasileiro/careas_apps:latest
+    container_name: careas-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - VIRTUAL_HOST=gis.anm.amiticia.cc
+      - LETSENCRYPT_HOST=gis.anm.amiticia.cc
+    networks:
+      - nginx-proxy
+
+networks:
+  nginx-proxy:
+    external: true

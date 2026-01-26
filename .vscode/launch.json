@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Backend (Flask)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "backend.main",
+      "args": ["-d"],
+      "cwd": "${workspaceFolder}",
+      "python": "/home/andre/Projects/anm/venv/bin/python",
+      "env": {
+        "FLASK_DEBUG": "1"
+      },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Frontend (React)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "/home/andre/.nvm/versions/node/v22.14.0/bin/npm",
+      "runtimeArgs": ["start"],
+      "cwd": "${workspaceFolder}/frontend",
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "pattern": "Local:.+?(https?://\\S+)",
+        "uriFormat": "%s",
+        "action": "openExternally"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack (Frontend + Backend)",
+      "configurations": ["Backend (Flask)", "Frontend (React)"],
+      "stopAll": true
+    }
+  ]
+}
