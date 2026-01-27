@@ -8,12 +8,12 @@ Ferramenta web para conversao de coordenadas de memorial descritivo para sistema
 
 - Conversao entre formatos: SCM <-> GTMPro <-> SIGAREAS <-> Decimal
 - Ajuste automatico para rumos verdadeiros (N/S/E/W)
-- Visualizacao do poligono
+- Visualizacao do poligono com estatisticas (vertices, area, perimetro)
 - Upload de arquivo ou input manual
 
 ## Stack
 
-- **Frontend**: React 18 + Bootstrap 5 + Plotly.js
+- **Frontend**: React 19 + Vite + Tailwind CSS + shadcn/ui + Plotly.js
 - **Backend**: Flask + poligonal (aidbag)
 
 ## Desenvolvimento Local
@@ -25,8 +25,8 @@ pip install -r backend/requirements.txt
 pip install git+https://github.com/eusoubrasileiro/aidbag.git
 
 # Rodar
-cd frontend && npm start      # http://localhost:3000
-cd backend && python main.py -d  # http://localhost:5000
+cd frontend && npm run dev      # http://localhost:5173
+cd backend && python main.py -d # http://localhost:5000
 ```
 
 ## Deploy
