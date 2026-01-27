@@ -9,6 +9,12 @@ const Plot = createPlotlyComponent(Plotly);
 import InputArea from './InputArea';
 import OutputArea from './OutputArea';
 import type { MemorialFormData, ConvertResponse, PlotlyData } from './types';
+
+interface PolygonStats {
+  vertices: number;
+  area_ha: number;
+  perimeter_m: number;
+}
 import { SAMPLE_MEMORIAL } from './types';
 import { createMemorialPlot } from './plotUtils';
 import './index.css';
@@ -17,6 +23,7 @@ export default function App() {
   const [outputText, setOutputText] = useState('carregando...');
   const [loading, setLoading] = useState(true);
   const [plotData, setPlotData] = useState<PlotlyData | null>(null);
+  const [polygonStats, setPolygonStats] = useState<PolygonStats | null>(null);
 
   const { register, handleSubmit, watch, setValue } = useForm<MemorialFormData>({
     defaultValues: {
@@ -50,6 +57,18 @@ export default function App() {
       if (data.status && data.points) {
         const figure = createMemorialPlot(data.points, data.points_verd);
         setPlotData(figure);
+
+        if (data.vertices !== undefined && data.area_ha !== undefined && data.perimeter_m !== undefined) {
+          setPolygonStats({
+            vertices: data.vertices,
+            area_ha: data.area_ha,
+            perimeter_m: data.perimeter_m,
+          });
+        } else {
+          setPolygonStats(null);
+        }
+      } else {
+        setPolygonStats(null);
       }
     } catch (error) {
       setOutputText(`Error connecting to backend server: ${error}`);
@@ -126,7 +145,7 @@ export default function App() {
             <CardTitle className="text-base">Visualizacao</CardTitle>
           </CardHeader>
           <CardContent>
-            <PlotArea loading={loading} plotData={plotData} />
+            <PlotArea loading={loading} plotData={plotData} stats={polygonStats} />
           </CardContent>
         </Card>
       </main>
@@ -134,19 +153,35 @@ export default function App() {
   );
 }
 
-function PlotArea({ loading, plotData }: { loading: boolean; plotData: PlotlyData | null }) {
+function formatPerimeter(meters: number): string {
+  if (meters >= 1000) {
+    return `${(meters / 1000).toFixed(2)} km`;
+  }
+  return `${meters.toFixed(2)} m`;
+}
+
+function PlotArea({ loading, plotData, stats }: { loading: boolean; plotData: PlotlyData | null; stats: PolygonStats | null }) {
   return (
-    <div className="flex items-center justify-center aspect-square max-w-[500px] mx-auto bg-slate-50 rounded-md">
-      {loading && (
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      )}
-      {!loading && plotData && (
-        <Plot
-          data={plotData.data}
-          layout={plotData.layout}
-          useResizeHandler={true}
-          style={{ width: '100%', height: '100%' }}
-        />
+    <div className="space-y-4">
+      <div className="flex items-center justify-center aspect-square max-w-[500px] mx-auto bg-slate-50 rounded-md">
+        {loading && (
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        )}
+        {!loading && plotData && (
+          <Plot
+            data={plotData.data}
+            layout={plotData.layout}
+            useResizeHandler={true}
+            style={{ width: '100%', height: '100%' }}
+          />
+        )}
+      </div>
+      {!loading && stats && (
+        <div className="flex justify-center gap-6 text-sm text-muted-foreground">
+          <span><strong>Vertices:</strong> {stats.vertices}</span>
+          <span><strong>Area:</strong> {stats.area_ha.toFixed(2)} ha</span>
+          <span><strong>Perimetro:</strong> {formatPerimeter(stats.perimeter_m)}</span>
+        </div>
       )}
     </div>
   );

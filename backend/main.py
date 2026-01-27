@@ -12,6 +12,7 @@ from aidbag.anm.careas.poligonal.util import (
     forceverdFailed,
     NotPairofCoordinatesError
 )
+from aidbag.anm.careas.poligonal.geographic import wgs84PolygonAttributes
 
 
 # App setup - production vs development
@@ -90,11 +91,23 @@ def convert():
         succeed = False
 
     print(converted_file, file=sys.stderr, flush=True)
+
+    # Calculate polygon attributes if conversion succeeded
+    vertices, area_ha, perimeter_m = None, None, None
+    if succeed and points is not None:
+        try:
+            vertices, perimeter_m, area_ha = wgs84PolygonAttributes(points.tolist())
+        except Exception as e:
+            print(f"Error calculating polygon attributes: {e}", file=sys.stderr, flush=True)
+
     return jsonify({
         'status': succeed,
         'data': converted_file,
         'points': points.tolist() if points is not None else None,
-        'points_verd': points_verd.tolist() if points_verd is not None else None
+        'points_verd': points_verd.tolist() if points_verd is not None else None,
+        'vertices': vertices,
+        'area_ha': area_ha,
+        'perimeter_m': perimeter_m
     })
 
 

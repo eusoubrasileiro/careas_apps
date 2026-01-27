@@ -18,6 +18,9 @@ export interface ConvertResponse {
   data: string;
   points: number[][] | null;
   points_verd: number[][] | null;
+  vertices?: number;
+  area_ha?: number;
+  perimeter_m?: number;
 }
 
 export interface PlotlyData {
