@@ -149,6 +149,14 @@ export default function App() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t bg-white/80 mt-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 text-center text-sm text-muted-foreground space-y-1">
+          <p>Powered by Python + Flask & <a href="https://geographiclib.sourceforge.io/" className="underline hover:text-foreground">GeographicLib</a> for Geodesic</p>
+          <p>By <a href="https://stackoverflow.com/users/1207193/iambr?tab=profile" className="underline hover:text-foreground">iambr</a> and Marcelo Bandeira</p>
+        </div>
+      </footer>
     </div>
   );
 }
