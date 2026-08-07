@@ -8,3 +8,5 @@ aidbag/
 nginx-1.18.0/
 backend/py3.10/
 .env
+mcp-logs.txt
+wa-logs.txt
