@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, Upload, Settings2 } from 'lucide-react';
-import type { MemorialFormData } from './types';
+import type { InputFormat, MemorialFormData } from './types';
 import { SAMPLE_MEMORIAL } from './types';
 
 interface InputAreaProps {
@@ -38,7 +38,7 @@ export default function InputArea({ register, watch, setValue, onSubmit }: Input
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
         <RadioGroup
           value={inputFormat}
-          onValueChange={(value) => setValue('input_format', value as 'scm' | 'gtmpro')}
+          onValueChange={(value) => setValue('input_format', value as InputFormat)}
           className="flex gap-4"
         >
           <div className="flex items-center space-x-2">
@@ -51,6 +51,12 @@ export default function InputArea({ register, watch, setValue, onSubmit }: Input
             <RadioGroupItem value="gtmpro" id="input-gtmpro" />
             <Label htmlFor="input-gtmpro" className="cursor-pointer text-sm" title="grau° minuto' segundo.decimal'' (TrackMaker)">
               GTMPro
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="dmshemi" id="input-dmshemi" />
+            <Label htmlFor="input-dmshemi" className="cursor-pointer text-sm" title={`09°38'38.000" S 65°59'09.000" W - hemisfério (S/W/N/E) ao invés de sinal`}>
+              Hemisfério
             </Label>
           </div>
         </RadioGroup>

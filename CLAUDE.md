@@ -34,7 +34,7 @@ careas_apps/
 
 ## Formatos Suportados
 
-**Entrada**: scm (SCM/Cadastro Mineiro), gtmpro (TrackMaker)
+**Entrada**: scm (SCM/Cadastro Mineiro), gtmpro (TrackMaker), dmshemi (hemisferio: `09°38'38.000" S 65°59'09.000" W`)
 **Saida**: sigareas, gtmpro, ddegree (decimal)
 
 ## Funcionalidades

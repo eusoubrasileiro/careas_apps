@@ -2,7 +2,7 @@
  * Types for Memorial Converter
  */
 
-export type InputFormat = 'scm' | 'gtmpro';
+export type InputFormat = 'scm' | 'gtmpro' | 'dmshemi';
 export type OutputFormat = 'sigareas' | 'gtmpro' | 'ddegree';
 
 export interface MemorialFormData {

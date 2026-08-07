@@ -10,6 +10,8 @@ from aidbag.anm.careas.poligonal.util import (
     formatMemorial,
     forceverdPoligonal,
     forceverdFailed,
+    HemisphereOrderError,
+    NoCoordinatesFoundError,
     NotPairofCoordinatesError
 )
 from aidbag.anm.careas.poligonal.geographic import wgs84PolygonAttributes
@@ -38,6 +40,7 @@ if os.environ.get('APP_ENV') == 'production':
 def convert():
     converted_file = None
     succeed = True
+    points, points_verd = None, None # jsonify below reads both even when parsing fails
     try:
         print(request.form['input_format'], file=sys.stderr, flush=True)
         print(request.form['output_format'], file=sys.stderr, flush=True)
@@ -57,8 +60,6 @@ def convert():
             fmt=request.form['input_format'],
             decimal=True
         )
-        points_verd = None
-
         if rumos_v:
             input_file_rd = forceverdPoligonal(
                 points,
@@ -83,6 +84,18 @@ def convert():
         converted_file = (
             "Falta um membro de uma coordenada\n"
             "(latitude ou longitude)\n"
+        )
+        succeed = False
+    except NoCoordinatesFoundError:
+        converted_file = (
+            "Nenhuma coordenada reconhecida no texto.\n"
+            "Confira o formato de entrada selecionado.\n"
+        )
+        succeed = False
+    except HemisphereOrderError:
+        converted_file = (
+            "Cada par deve ter uma latitude (N/S)\n"
+            "e uma longitude (E/W). Confira os hemisferios.\n"
         )
         succeed = False
     except Exception:
