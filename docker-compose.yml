@@ -15,7 +15,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.careas.rule=Host(`gis.anm.amiticia.cc`)"
       - "traefik.http.routers.careas.entrypoints=websecure"
-      - "traefik.http.routers.careas.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.careas.tls.certresolver=myresolver"
       - "traefik.http.services.careas.loadbalancer.server.port=8000"
 
 networks:
