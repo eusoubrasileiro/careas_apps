@@ -2,8 +2,8 @@ services:
   careas-app:
     build:
       context: .
-      args:
-        - GITHUB_TOKEN=${GITHUB_TOKEN}
+      secrets:
+        - github_token
     image: ghcr.io/eusoubrasileiro/careas_apps:latest
     container_name: careas-app
     restart: unless-stopped
@@ -21,3 +21,9 @@ services:
 networks:
   network_public:
     external: true
+
+# Build-time only: read from the GITHUB_TOKEN env var (or .env) and mounted into the
+# aidbag install step. Never lands in an image layer.
+secrets:
+  github_token:
+    environment: GITHUB_TOKEN

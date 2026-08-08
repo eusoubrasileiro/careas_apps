@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 # Stage 1: Build React frontend
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
@@ -17,9 +19,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /
 COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt gunicorn
 
-# Install aidbag from GitHub (requires token for private repo)
-ARG GITHUB_TOKEN
-RUN pip install --no-cache-dir "aidbag @ git+https://${GITHUB_TOKEN}@github.com/eusoubrasileiro/aidbag.git"
+# Install aidbag from GitHub (private repo, needs a PAT).
+# The token comes in as a BuildKit secret, NOT a build-arg: build-args are recorded in the
+# image config history and would be readable by anyone who pulls the published image.
+RUN --mount=type=secret,id=github_token \
+    pip install --no-cache-dir \
+        "aidbag @ git+https://$(cat /run/secrets/github_token)@github.com/eusoubrasileiro/aidbag.git"
 
 # Copy backend code
 COPY backend/ ./backend/

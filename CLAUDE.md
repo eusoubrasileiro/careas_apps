@@ -64,13 +64,15 @@ cd frontend && npm run dev
 
 ## Docker Build
 
-Requires GitHub PAT to clone private `aidbag` dependency:
+Requires GitHub PAT to clone private `aidbag` dependency. The token is passed as a
+**BuildKit secret**, never a `--build-arg`: build-args are recorded in the image config
+history, and this image is publicly pullable from ghcr.io.
 
 ```bash
-# Token must be on same line (env var inline)
+# Token from env var (compose reads it into the `github_token` secret)
 GITHUB_TOKEN=ghp_your_token docker compose build
 
-# Or use .env file (add to .gitignore!)
+# Or use .env file (already in .gitignore)
 echo "GITHUB_TOKEN=ghp_your_token" > .env
 docker compose build
 ```
@@ -81,13 +83,19 @@ Use `docker run` directly since `docker-compose.yml` targets VPS with Traefik:
 
 ```bash
 cd ~/Projects/anm/careas_apps
-docker build -t careas_apps:test --build-arg GITHUB_TOKEN=ghp_your_token .
+GITHUB_TOKEN=ghp_your_token docker build -t careas_apps:test \
+    --secret id=github_token,env=GITHUB_TOKEN .
 docker run -p 8000:8000 careas_apps:test
 ```
 
 Open http://localhost:8000
 
-**CI/CD**: GitHub Actions uses `secrets.TOKEN` (configured in repo settings).
+**CI/CD**: GitHub Actions uses `secrets.TOKEN` (configured in repo settings), mounted the
+same way via `build-push-action`'s `secrets:` input.
+
+⚠️ **Never reintroduce `ARG GITHUB_TOKEN` / `--build-arg`.** A PAT leaked that way on
+2026-08-07 and had to be rotated — it was readable with an anonymous `docker pull` plus
+`docker history`.
 
 ## Deploy
 
