@@ -1,7 +1,21 @@
+# careas_apps — deployed behind the shared Traefik on the AmiticIA VPS.
+# Deploys from /opt/amiticia/careas_apps/deploy/ (a checkout of this repo).
+#
+# `name:` is load-bearing. Compose derives the project name from the directory
+# holding this file, so without the pin this project would be called `deploy`.
+# It must keep matching the name the running container already carries —
+# `careas_apps` — or Traefik routers and any future named volume come up under a
+# different project.
+#
+# `context: ..` — the Dockerfile and both build stages (frontend/, backend/) live
+# at the repo root, one level above this file. A bare `.` would resolve to
+# deploy/ and the build would fail with no Dockerfile.
+name: careas_apps
+
 services:
   careas-app:
     build:
-      context: .
+      context: ..
       secrets:
         - github_token
     image: ghcr.io/eusoubrasileiro/careas_apps:latest
