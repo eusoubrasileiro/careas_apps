@@ -82,7 +82,7 @@ docker compose build
 Use `docker run` directly since `docker-compose.yml` targets VPS with Traefik:
 
 ```bash
-cd ~/Projects/anm/careas_apps
+cd ~/Projects/amiticia/repositories/side-projects/careas_apps
 GITHUB_TOKEN=ghp_your_token docker build -t careas_apps:test \
     --secret id=github_token,env=GITHUB_TOKEN .
 docker run -p 8000:8000 careas_apps:test

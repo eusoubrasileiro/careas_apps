@@ -8,7 +8,7 @@
       "module": "backend.main",
       "args": ["-d"],
       "cwd": "${workspaceFolder}",
-      "python": "/home/andre/Projects/anm/venv/bin/python",
+      "python": "/home/andre/Projects/anm/.venv/bin/python",
       "env": {
         "FLASK_DEBUG": "1"
       },
